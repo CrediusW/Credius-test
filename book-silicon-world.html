@@ -421,12 +421,12 @@
   @media (max-width:900px){
     /* 移动端单页：只显示左页，占满宽度 */
     .book-row{justify-content:center;}
-    .page.left{width:100vw;max-width:none;height:100vh;margin:0;border-radius:0;}
+    .page.left{width:100vw;max-width:540px;height:640px;margin:0 auto;border-radius:6px;box-shadow:none;}
     .page.right{display:none;}
     .book-row::after{display:none;}
     .spine{display:none;}
-    .page-inner{padding:26px 22px 24px;}
-    .page-content{height:calc(100vh - 118px);}
+    .page-inner{padding:30px 24px 30px;}
+    .page-content{height:520px;}
     .topbar{padding:10px 12px;}
     .topbar .bookname{font-size:12px;letter-spacing:2px;}
     .topbar .chap{font-size:10.5px;max-width:36vw;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;}
@@ -2157,9 +2157,6 @@ $('btnStart').addEventListener('click', () => {
   document.documentElement.style.setProperty('--fs', curFont + 'px');
   document.querySelectorAll('.fbtn').forEach(b => b.classList.toggle('active', parseInt(b.dataset.fs,10) === curFont));
   rebuildAll();
-  if (savedPos && savedPos.ch !== undefined && savedPos.ch < CHAPTERS.length) {
-    state = { ch: savedPos.ch, spread: Math.min(savedPos.spread, chapterSpreads[savedPos.ch].length - 1) };
-  }
   fit(); render();
 });
 
