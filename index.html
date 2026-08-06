@@ -1,0 +1,1825 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>深海小元 · 电子宠物企鹅</title>
+<script src="personaPrompts.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+:root{
+  --text:#f4f1ff;--muted:#a79fd0;--card:rgba(255,255,255,.06);--border:rgba(255,255,255,.12);
+  --accent:#ff9d6b;--accent2:#ff5f8f;--green:#5bd6a3;
+}
+html,body{height:100%}
+body{
+  font-family:"PingFang SC","Microsoft YaHei",system-ui,-apple-system,sans-serif;
+  background:radial-gradient(1100px 700px at 75% -10%,#2a2350 0%,#171232 48%,#0d0a1f 100%);
+  color:var(--text);display:flex;justify-content:center;overflow:hidden;
+}
+.app{width:100%;max-width:430px;height:100%;display:flex;flex-direction:column;padding:16px 18px calc(14px + env(safe-area-inset-bottom));position:relative}
+header{display:flex;justify-content:space-between;align-items:center;padding:6px 2px 0}
+.brand{display:flex;align-items:center;gap:8px;font-size:17px;font-weight:600;letter-spacing:.5px}
+.brand .dot{width:10px;height:10px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));box-shadow:0 0 12px rgba(255,140,110,.8)}
+.icon-btn{width:38px;height:38px;border-radius:12px;background:var(--card);border:1px solid var(--border);color:var(--text);font-size:17px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:.2s}
+.icon-btn:hover{background:rgba(255,255,255,.12)}
+
+.stage{flex:0 0 auto;display:flex;flex-direction:column;align-items:center;padding:8px 0 2px}
+.pet-wrap{position:relative;width:100%;overflow:visible}
+.pet-stage{position:relative;width:500px;height:620px;margin:0 auto;transform-origin:center top;will-change:transform}
+.character-root{position:absolute;inset:0;will-change:transform,opacity}
+.part{position:absolute;display:flex;align-items:center;justify-content:center;pointer-events:none;will-change:transform,opacity,filter}
+.part img{max-width:100%;max-height:100%;object-fit:contain}
+.st-idle .character-root{animation:idleFloat 2.8s ease-in-out infinite}
+@keyframes idleFloat{0%,100%{transform:translateY(0) scaleY(1)}50%{transform:translateY(-4px) scaleY(1.008)}}
+.st-thinking .character-root{animation:thinkSway 1.2s ease-in-out infinite}
+@keyframes thinkSway{0%,100%{transform:rotate(-1deg)}50%{transform:rotate(1deg)}}
+.st-thinking .part[data-part="visor"]{animation:visorBright 1.2s ease-in-out infinite}
+@keyframes visorBright{0%,100%{filter:brightness(1)}50%{filter:brightness(1.25)}}
+.st-happy .character-root{animation:happyJump .45s ease-out}
+@keyframes happyJump{0%{transform:translateY(0)}40%{transform:translateY(-24px)}100%{transform:translateY(0)}}
+.st-happy .part[data-part="heartEffect"]{animation:heartPop 1.1s ease-out}
+@keyframes heartPop{0%{opacity:0;transform:translateY(0)}25%{opacity:1}60%{opacity:1;transform:translateY(-15px)}100%{opacity:0;transform:translateY(-15px)}}
+.st-sad .character-root{animation:sadSink .8s ease-in-out}
+@keyframes sadSink{0%{transform:translateY(0)}100%{transform:translateY(6px)}}
+.st-sad .part[data-part="tear"]{animation:tearFall 1.6s ease-out}
+@keyframes tearFall{0%{opacity:0;transform:translateY(0)}20%{opacity:1}100%{opacity:0;transform:translateY(22px)}}
+.st-shy .character-root{animation:shySway .7s ease-in-out infinite}
+@keyframes shySway{0%,100%{transform:rotate(-2deg)}50%{transform:rotate(2deg)}}
+.st-nervous .character-root{animation:nervShake .35s ease-out}
+@keyframes nervShake{0%,100%{transform:translateX(0)}20%{transform:translateX(-3px)}40%{transform:translateX(3px)}60%{transform:translateX(-3px)}80%{transform:translateX(3px)}}
+.st-sleeping .character-root{animation:sleepBreath 4s ease-in-out infinite}
+@keyframes sleepBreath{0%,100%{transform:translateY(0)}50%{transform:translateY(2px)}}
+.eye-scale{transform-origin:center}
+.st-sleeping .part[data-part="eyeLeft"],.st-sleeping .part[data-part="eyeRight"]{transform:scaleY(.08)}
+.part.blinking{animation:blinkEyeScale .2s ease-in-out}
+@keyframes blinkEyeScale{0%{transform:scaleY(1)}45%{transform:scaleY(.08)}55%{transform:scaleY(.08)}100%{transform:scaleY(1)}}
+.st-talking .part[data-part="mouthSmile"]{animation:mouthTalk .13s ease-in-out infinite}
+@keyframes mouthTalk{0%,100%{transform:scaleY(.76)}50%{transform:scaleY(1.08)}}
+.halo{position:absolute;inset:-14px;border-radius:50%;border:2px solid rgba(255,157,107,.45);opacity:0;transition:opacity .4s}
+.halo.on{opacity:1;animation:pulse 2s ease-in-out infinite}
+@keyframes pulse{0%,100%{transform:scale(1);opacity:.5}50%{transform:scale(1.06);opacity:.9}}
+#pet{width:100%;height:100%;display:block;cursor:pointer;user-select:none;-webkit-user-select:none}
+.pet-wrap.listening #pet{transform:scale(1.04)}
+.pet-wrap.thinking #pet{animation:tilt 1.6s ease-in-out infinite}
+.pet-wrap.speaking #pet{animation:pop .9s ease-in-out infinite}
+#pet .eye-happy{opacity:0}
+.pet-wrap.happy #pet .eye{opacity:0}
+.pet-wrap.happy #pet .eye-happy{opacity:1}
+.pet-wrap.happy #pet{animation:jump .72s cubic-bezier(.2,.8,.3,1) 0s 2}
+@keyframes blinkEye{0%,90%,100%{transform:scaleY(1)}93%{transform:scaleY(.12)}}
+#pet .eye{transform-box:fill-box;transform-origin:center;animation:blinkEye 4.5s infinite}
+#pet .beak{transform-box:fill-box;transform-origin:center top}
+.pet-wrap.speaking #pet .beak{animation:talkBeak .3s ease-in-out infinite}
+@keyframes talkBeak{0%,100%{transform:scaleY(.45)}50%{transform:scaleY(1)}}
+.pet-wrap.listening #pet .ant-ball{animation:antGlow 1.2s ease-in-out infinite}
+@keyframes antGlow{0%,100%{opacity:1;filter:drop-shadow(0 0 2px #5fd0ff)}50%{opacity:.7;filter:drop-shadow(0 0 9px #5fd0ff)}}
+.pet-wrap.speaking #pet .wing-l{animation:flapL .3s ease-in-out infinite}
+.pet-wrap.speaking #pet .wing-r{animation:flapR .3s ease-in-out infinite}
+@keyframes flapL{0%,100%{transform:rotate(0)}50%{transform:rotate(12deg)}}
+@keyframes flapR{0%,100%{transform:rotate(0)}50%{transform:rotate(-12deg)}}
+.wing-l,.wing-r{transform-box:fill-box;transform-origin:top center}
+#pet .chest-line{animation:chestBeat 1.5s ease-in-out infinite}
+@keyframes chestBeat{0%,100%{opacity:1}50%{opacity:.4}}
+#pet .scarf-led{animation:ledBlink 1.6s ease-in-out infinite}
+#pet .scarf-led:nth-of-type(2){animation-delay:.3s}
+#pet .scarf-led:nth-of-type(3){animation-delay:.6s}
+@keyframes ledBlink{0%,100%{opacity:1}50%{opacity:.3}}
+.heart{position:absolute;width:14px;height:14px;background:#ff6b9d;transform:rotate(45deg) scale(0);opacity:0;animation:heartUp 1.1s ease-out forwards;pointer-events:none}
+.heart::before,.heart::after{content:"";position:absolute;width:14px;height:14px;background:#ff6b9d;border-radius:50%}
+.heart::before{left:-7px;top:0}
+.heart::after{top:-7px;left:0}
+@keyframes heartUp{0%{opacity:0;transform:rotate(45deg) scale(0)}30%{opacity:1}100%{opacity:0;transform:rotate(45deg) scale(1) translateY(-82px)}}
+.actions{flex:0 0 auto;display:flex;gap:10px;justify-content:center;padding:0 0 10px}
+.act{flex:1;max-width:88px;padding:11px 0;border-radius:14px;border:1px solid var(--border);background:var(--card);color:var(--text);font-size:13px;cursor:pointer;transition:.2s;font-family:inherit}
+.act:hover{background:rgba(255,255,255,.12);border-color:var(--accent)}
+.act:active{transform:scale(.94)}
+
+#pet .eye-happy{opacity:0}
+.pet-wrap.happy #pet .eye{opacity:0}
+.pet-wrap.happy #pet .eye-happy{opacity:1}
+.pet-wrap.happy #pet{animation:jump .72s cubic-bezier(.2,.8,.3,1) 0s 2}
+@keyframes blinkEye{0%,90%,100%{transform:scaleY(1)}93%{transform:scaleY(.12)}}
+#pet .eye{transform-box:fill-box;transform-origin:center;animation:blinkEye 4.5s infinite}
+#pet .beak{transform-box:fill-box;transform-origin:center top}
+.pet-wrap.speaking #pet .beak{animation:talkBeak .3s ease-in-out infinite}
+@keyframes talkBeak{0%,100%{transform:scaleY(.45)}50%{transform:scaleY(1)}}
+.pet-wrap.listening #pet .ant-ball{animation:antGlow 1.2s ease-in-out infinite}
+@keyframes antGlow{0%,100%{opacity:1;filter:drop-shadow(0 0 2px #5fd0ff)}50%{opacity:.7;filter:drop-shadow(0 0 9px #5fd0ff)}}
+.pet-wrap.speaking #pet .wing-l{animation:flapL .3s ease-in-out infinite}
+.pet-wrap.speaking #pet .wing-r{animation:flapR .3s ease-in-out infinite}
+@keyframes flapL{0%,100%{transform:rotate(0)}50%{transform:rotate(12deg)}}
+@keyframes flapR{0%,100%{transform:rotate(0)}50%{transform:rotate(-12deg)}}
+.wing-l,.wing-r{transform-box:fill-box;transform-origin:top center}
+#pet .chest-line{animation:chestBeat 1.5s ease-in-out infinite}
+@keyframes chestBeat{0%,100%{opacity:1}50%{opacity:.4}}
+#pet .scarf-led{animation:ledBlink 1.6s ease-in-out infinite}
+#pet .scarf-led:nth-of-type(2){animation-delay:.3s}
+#pet .scarf-led:nth-of-type(3){animation-delay:.6s}
+@keyframes ledBlink{0%,100%{opacity:1}50%{opacity:.3}}
+.heart{position:absolute;width:14px;height:14px;background:#ff6b9d;transform:rotate(45deg) scale(0);opacity:0;animation:heartUp 1.1s ease-out forwards;pointer-events:none}
+.heart::before,.heart::after{content:"";position:absolute;width:14px;height:14px;background:#ff6b9d;border-radius:50%}
+.heart::before{left:-7px;top:0}
+.heart::after{top:-7px;left:0}
+@keyframes heartUp{0%{opacity:0;transform:rotate(45deg) scale(0)}30%{opacity:1}100%{opacity:0;transform:rotate(45deg) scale(1) translateY(-82px)}}
+.actions{flex:0 0 auto;display:flex;gap:10px;justify-content:center;padding:0 0 10px}
+.act{flex:1;max-width:88px;padding:11px 0;border-radius:14px;border:1px solid var(--border);background:var(--card);color:var(--text);font-size:13px;cursor:pointer;transition:.2s;font-family:inherit}
+.act:hover{background:rgba(255,255,255,.12);border-color:var(--accent)}
+.act:active{transform:scale(.94)}
+
+@keyframes pop{0%,100%{transform:scale(1)}50%{transform:scale(1.06)}}
+.dots{display:flex;gap:5px;margin-top:2px;height:14px;align-items:center}
+.dots i{width:6px;height:6px;border-radius:50%;background:var(--muted);opacity:0}
+.pet-wrap.thinking .dots i{animation:dot 1s infinite}
+.pet-wrap.thinking .dots i:nth-child(2){animation-delay:.18s}
+.pet-wrap.thinking .dots i:nth-child(3){animation-delay:.36s}
+@keyframes dot{0%,100%{opacity:.15;transform:translateY(0)}40%{opacity:1;transform:translateY(-3px)}}
+.status{display:flex;align-items:center;gap:8px;padding:7px 16px;border-radius:999px;background:var(--card);border:1px solid var(--border);font-size:13px;color:var(--muted);margin-top:6px;min-height:34px;max-width:100%}
+.status .dot{width:8px;height:8px;border-radius:50%;background:var(--muted);flex:0 0 auto}
+.status .txt{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:300px}
+.status.on .dot{background:var(--green);box-shadow:0 0 8px rgba(91,214,163,.9);animation:pulse 1.6s infinite}
+.status.thinking .dot{background:var(--accent)}
+.status.speaking .dot{background:var(--accent2)}
+.spark{position:absolute;width:14px;height:14px;background:radial-gradient(circle,#ffe96a 0%,#ff8fb3 60%,transparent 75%);border-radius:50%;pointer-events:none;transform:translate(-50%,-50%) scale(.3);opacity:0;animation:drift 1.1s ease-out forwards}
+@keyframes drift{0%{opacity:0;transform:translate(-50%,-50%) scale(.3)}25%{opacity:1}100%{opacity:0;transform:translate(calc(-50% + var(--dx,0px)),calc(-50% + var(--dy,0px))) scale(1.15)}}
+.pet-wrap.jump #pet{animation:jump .72s cubic-bezier(.2,.8,.3,1)}
+@keyframes jump{0%{transform:translateY(0) scale(1)}25%{transform:translateY(-22px) scale(1.05,.94)}50%{transform:translateY(2px) scale(.96,1.05)}75%{transform:translateY(-6px) scale(1.02)}100%{transform:translateY(0) scale(1)}}
+.ctxmenu{position:fixed;background:rgba(20,14,40,.96);border:1px solid var(--border);border-radius:14px;padding:6px;min-width:220px;max-width:280px;z-index:80;box-shadow:0 16px 50px rgba(0,0,0,.55);visibility:hidden;opacity:0;transform:scale(.96) translateY(-4px);transform-origin:top left;transition:opacity .15s,transform .15s}
+.ctxmenu.show{visibility:visible;opacity:1;transform:none}
+.ctxmenu .ctx-head{font-size:11px;color:var(--muted);padding:8px 10px 4px;letter-spacing:.5px;text-transform:uppercase}
+.ctx-item{display:flex;align-items:center;justify-content:space-between;padding:10px 12px;border-radius:10px;cursor:pointer;font-size:13px;transition:background .15s;gap:8px}
+.ctx-item:hover{background:rgba(255,255,255,.08)}
+.ctx-item .check{color:var(--accent);font-weight:700;font-size:14px}
+.fab{position:fixed;right:18px;bottom:24px;width:54px;height:54px;border-radius:50%;border:none;cursor:pointer;color:#fff;background:linear-gradient(135deg,#e94560,#ff7e9d);box-shadow:0 10px 30px rgba(233,69,96,.45);display:none;align-items:center;justify-content:center;z-index:40;transition:transform .15s}
+.fab.show{display:flex}
+.fab:active{transform:scale(.93)}
+.fab svg{width:22px;height:22px}
+.hint-row{text-align:center;font-size:12px;color:var(--muted);opacity:.8;padding:6px 0 4px}
+.hint-row b{color:var(--text);font-weight:500}
+
+
+.chat{flex:1 1 auto;overflow-y:auto;margin:10px 0 10px;display:flex;flex-direction:column;gap:10px;padding:2px;scrollbar-width:none;min-height:110px;position:relative;z-index:2}
+.chat::-webkit-scrollbar{display:none}
+.bubble{max-width:78%;padding:11px 14px;border-radius:18px;font-size:14px;line-height:1.55;word-break:break-word;animation:pop .25s ease-out}
+@keyframes pop{from{opacity:0;transform:translateY(6px) scale(.97)}to{opacity:1;transform:none}}
+.bubble.user{align-self:flex-end;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;border-bottom-right-radius:6px}
+.bubble.pet{align-self:flex-start;background:var(--card);border:1px solid var(--border);border-bottom-left-radius:6px}
+.bubble.pet .who{display:block;font-size:11px;color:var(--accent);margin-bottom:3px}
+.chat .hint{text-align:center;color:var(--muted);font-size:12px;margin:14px 0 6px;opacity:.75}
+
+.mic-area{flex:0 0 auto;display:flex;flex-direction:column;align-items:center;gap:8px}
+.mic{width:76px;height:76px;border-radius:50%;border:none;cursor:pointer;color:#fff;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;box-shadow:0 10px 30px rgba(255,120,90,.45),inset 0 1px 0 rgba(255,255,255,.35);transition:transform .15s}
+.mic:active{transform:scale(.93)}
+.mic svg{width:30px;height:30px}
+.mic.stop{background:linear-gradient(135deg,#5a5578,#3d3857);box-shadow:0 10px 26px rgba(0,0,0,.5)}
+.mic.stop svg{animation:none}
+.mic-note{font-size:11px;color:var(--muted)}
+
+.sheet{position:fixed;inset:auto 0 0 0;max-width:430px;margin:0 auto;background:#191436;border:1px solid var(--border);border-bottom:none;border-radius:22px 22px 0 0;transform:translateY(105%);transition:transform .35s cubic-bezier(.2,.9,.3,1);z-index:50;max-height:82vh;overflow-y:auto;scrollbar-width:none}
+.sheet::-webkit-scrollbar{display:none}
+.sheet.open{transform:translateY(0)}
+.sheet .grip{width:44px;height:5px;border-radius:3px;background:rgba(255,255,255,.18);margin:12px auto 6px}
+.sheet h3{font-size:15px;font-weight:600;padding:4px 20px 12px}
+.sheet .row{padding:12px 20px;border-top:1px solid rgba(255,255,255,.06)}
+.sheet label{display:block;font-size:12px;color:var(--muted);margin-bottom:6px}
+.sheet input,.sheet select,.sheet textarea{width:100%;background:rgba(255,255,255,.07);border:1px solid var(--border);border-radius:10px;color:var(--text);font-size:13px;padding:9px 11px;outline:none;font-family:inherit}
+.sheet input:focus,.sheet select:focus,.sheet textarea:focus{border-color:var(--accent)}
+.sheet textarea{resize:vertical;min-height:56px}
+.seg{display:flex;background:rgba(255,255,255,.07);border-radius:12px;padding:3px;gap:3px}
+.seg button{flex:1;border:none;background:transparent;color:var(--muted);font-size:13px;padding:8px 0;border-radius:9px;cursor:pointer;transition:.2s}
+.seg button.on{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;font-weight:500}
+.sheet .save{width:calc(100% - 40px);margin:16px 20px calc(20px + env(safe-area-inset-bottom));padding:12px;border:none;border-radius:14px;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;font-size:15px;font-weight:600;cursor:pointer}
+.hidden{display:none!important}
+.toast{position:fixed;left:50%;bottom:110px;transform:translateX(-50%);background:rgba(20,14,40,.95);border:1px solid var(--border);color:var(--text);font-size:13px;padding:10px 18px;border-radius:12px;opacity:0;pointer-events:none;transition:.3s;z-index:60;max-width:86vw;text-align:center}
+.toast.show{opacity:1}
+.range-row{display:flex;align-items:center;gap:10px}
+.range-row input[type=range]{flex:1;accent-color:var(--accent)}
+.range-row span{font-size:12px;color:var(--muted);min-width:34px;text-align:right}
+.kv{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);padding:2px 0}
+.kv b{color:var(--text);font-weight:500}
+.status-pill{display:flex;align-items:center;gap:6px;padding:5px 13px;border-radius:99px;background:rgba(255,255,255,.06);border:1px solid var(--border);font-size:12px;color:var(--muted);transition:.3s;margin-right:6px;flex:0 0 auto}
+.status-pill .pill-dot{width:7px;height:7px;border-radius:50%;background:var(--muted);transition:.3s}
+.status-pill.active{color:var(--text);border-color:rgba(95,208,255,.4)}
+.status-pill.listening .pill-dot{background:var(--green);box-shadow:0 0 8px rgba(91,214,163,.9);animation:pulse 1.6s infinite}
+.status-pill.thinking .pill-dot{background:var(--accent);animation:pulse 1s infinite}
+.status-pill.talking .pill-dot{background:var(--accent2);animation:pulse .7s infinite}
+.status-pill.happy .pill-dot{background:#ffd34d;box-shadow:0 0 8px rgba(255,211,77,.9)}
+.status-pill.shy .pill-dot{background:#ff7e9d}
+.status-pill.sad .pill-dot{background:#6b8cff}
+.status-pill.sleeping .pill-dot{background:#888780}
+.first-tip{position:fixed;left:50%;bottom:150px;transform:translateX(-50%);background:rgba(20,14,40,.96);border:1px solid var(--border);border-radius:12px;padding:10px 18px;font-size:13px;color:var(--text);opacity:0;pointer-events:none;transition:opacity .6s;z-index:70;max-width:84vw;text-align:center}
+.first-tip.show{opacity:1}
+.zone-debug{position:absolute;border:1.5px dashed rgba(95,208,255,.8);border-radius:12px;pointer-events:none;z-index:999;display:none}
+.zone-debug.on{display:block}
+.zone-debug::after{content:attr(data-name);position:absolute;top:-20px;left:6px;font-size:10px;color:#5fd0ff;background:rgba(14,10,32,.8);padding:1px 6px;border-radius:6px}
+.character-root.dragging{animation:none!important;transition:transform .05s linear}
+.character-root.tilt-l{animation:tiltL .45s ease-in-out}
+@keyframes tiltL{0%,100%{transform:rotate(0)}30%{transform:rotate(-7deg)}60%{transform:rotate(4deg)}}
+.character-root.tilt-r{animation:tiltR .45s ease-in-out}
+@keyframes tiltR{0%,100%{transform:rotate(0)}30%{transform:rotate(7deg)}60%{transform:rotate(-4deg)}}
+.character-root.bounce{animation:bounceP .5s ease-in-out}
+@keyframes bounceP{0%,100%{transform:translateY(0)}35%{transform:translateY(-10px)}70%{transform:translateY(3px)}}
+.character-root.poke{animation:pokeSquash .3s ease-in-out}
+@keyframes pokeSquash{0%,100%{transform:scaleY(1)}30%{transform:scaleY(.94)}55%{transform:scaleY(1.03)}80%{transform:scaleY(1)}}
+.character-root.poke-nervous{animation:pokeShake .4s ease-in-out}
+@keyframes pokeShake{0%,100%{transform:translateX(0)}20%{transform:translateX(-5px)}40%{transform:translateX(5px)}60%{transform:translateX(-4px)}80%{transform:translateX(4px)}}
+.character-root.chest-up{animation:chestUp .9s ease-in-out}
+@keyframes chestUp{0%,100%{transform:rotate(0) translateY(0)}25%{transform:rotate(-3deg) translateY(-4px)}50%{transform:rotate(-1deg) translateY(-6px)}75%{transform:rotate(-2deg) translateY(-2px)}}
+.part[data-part="visor"]{transition:transform .32s cubic-bezier(.34,1.56,.64,1);transform-origin:88% 55%}
+.part[data-part="visor"].visor-flip{transform:rotate(-58deg) translate(9px,-5px)}
+.part[data-part="scarf"].scarf-sweep{animation:scarfSweep .9s ease-in-out}
+@keyframes scarfSweep{0%{filter:brightness(1)}30%{filter:brightness(1.5) hue-rotate(10deg)}100%{filter:brightness(1)}}
+.part[data-part="eyeLeft"],.part[data-part="eyeRight"]{transition:transform .18s ease}
+.part.eye-look-l{transform:translateX(-6px)}
+.part.eye-look-r{transform:translateX(6px)}
+.part[data-part="heartEffect"]{animation:heartFloat 1.4s ease-out}
+@keyframes heartFloat{0%{opacity:0;transform:translateY(6px) scale(.8)}20%{opacity:1;transform:translateY(0) scale(1)}60%{opacity:1;transform:translateY(-15px) scale(1)}100%{opacity:0;transform:translateY(-15px) scale(1)}}
+.part[data-part="tear"]{animation:tearDrop 1.6s ease-out}
+@keyframes tearDrop{0%{opacity:0;transform:translateY(0)}15%{opacity:1}100%{opacity:0;transform:translateY(20px)}}
+.part[data-part="sweat"]{animation:sweatPop 1s ease-out}
+@keyframes sweatPop{0%{opacity:0;transform:scale(.5)}25%{opacity:1;transform:scale(1)}80%{opacity:1}100%{opacity:0}}
+.part[data-part="zzz"]{animation:zzzFloat 2.6s ease-in-out infinite}
+@keyframes zzzFloat{0%,100%{transform:translateY(0);opacity:.85}50%{transform:translateY(-6px);opacity:1}}
+.character-root.wake{animation:wakeUp .5s ease-out}
+@keyframes wakeUp{0%{transform:scale(.96)}30%{transform:scale(1.05) rotate(-2deg)}60%{transform:scale(1.02)}100%{transform:scale(1)}}
+.character-root.fx-jump2{animation:fxJump2 .8s ease-in-out}
+@keyframes fxJump2{0%,100%{transform:translateY(0)}25%{transform:translateY(-20px)}45%{transform:translateY(0)}65%{transform:translateY(-12px)}85%{transform:translateY(0)}}
+.character-root.fx-spin{animation:fxSpin .7s ease-in-out}
+@keyframes fxSpin{0%{transform:rotate(0)}100%{transform:rotate(360deg)}}
+.character-root.fx-laugh{animation:fxLaugh .6s ease-in-out}
+@keyframes fxLaugh{0%,100%{transform:rotate(0) scale(1)}30%{transform:rotate(8deg) scale(1.05)}60%{transform:rotate(-4deg) scale(1.02)}}
+.character-root.fx-sway{animation:fxSway .8s ease-in-out}
+@keyframes fxSway{0%,100%{transform:rotate(0)}25%{transform:rotate(-6deg)}50%{transform:rotate(6deg)}75%{transform:rotate(-3deg)}}
+.character-root.fx-dodge{animation:fxDodge .5s ease-in-out}
+@keyframes fxDodge{0%,100%{transform:translateX(0)}30%{transform:translateX(-42px)}60%{transform:translateX(20px)}}
+.character-root.fx-puff{animation:fxPuff .6s ease-in-out}
+@keyframes fxPuff{0%,100%{transform:scale(1)}35%{transform:scale(.93) translateY(4px)}70%{transform:scale(1.03)}}
+.character-root.shake{animation:fxShake .4s ease-in-out}
+@keyframes fxShake{0%,100%{transform:translateX(0)}20%{transform:translateX(-4px)}40%{transform:translateX(4px)}60%{transform:translateX(-3px)}80%{transform:translateX(3px)}}
+.persona-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.persona-card{display:flex;flex-direction:column;gap:3px;padding:11px 12px;border-radius:12px;border:1px solid var(--border);background:rgba(255,255,255,.05);cursor:pointer;transition:.2s;text-align:left}
+.persona-card:hover{background:rgba(255,255,255,.1)}
+.persona-card.sel{border-color:var(--accent2);background:rgba(255,95,143,.12);box-shadow:0 0 0 1px var(--accent2) inset}
+.persona-card .pc-head{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--text);font-weight:500}
+.persona-card .pc-icon{font-size:14px;color:var(--accent2)}
+.persona-card.sel .pc-icon{color:var(--accent2)}
+.persona-card .pc-desc{font-size:11px;color:var(--muted);line-height:1.5}
+.persona-card .pc-check{font-size:11px;color:var(--accent2);opacity:0;transition:.2s}
+.persona-card.sel .pc-check{opacity:1}
+.lang-line{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:7px 0}
+.lang-line span{font-size:12px;color:var(--muted);flex:0 0 auto}
+.lang-line select{flex:1}
+@media (max-width:480px){
+  .app{padding:10px 12px calc(12px + env(safe-area-inset-bottom))}
+  .brand{font-size:15px}
+  .status-pill{font-size:11px;padding:4px 10px;margin-right:4px}
+  .icon-btn{width:34px;height:34px}
+  .stage{padding:4px 0 0}
+  .actions{gap:8px;padding:0 0 8px}
+  .act{max-width:78px;padding:9px 0;font-size:12px}
+  .mic{width:64px;height:64px}
+  .mic svg{width:26px;height:26px}
+  .bubble{font-size:13px;max-width:82%}
+  .chat{min-height:90px;margin:8px 0}
+  .status{font-size:12px;padding:6px 12px}
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <div class="brand"><span class="dot"></span>深海小元 · 电子宠物企鹅</div>
+    <div class="status-pill" id="statusPill"><span class="pill-dot"></span><span class="pill-text">待机</span></div>
+    <button class="icon-btn" id="gear" title="设置">⚙</button>
+  </header>
+
+  <div class="stage">
+    <div class="pet-wrap" id="petWrap">
+      <div class="halo"></div>
+      <div class="pet-stage" id="petStage">
+        <div class="character-root" id="charRoot"></div>
+      </div>
+    </div>
+    <div class="dots"><i></i><i></i><i></i></div>
+    <div class="status" id="status"><span class="dot"></span><span class="txt" id="statusTxt">点下面的按钮，开始跟我说话</span></div>
+  </div>
+
+  <div class="chat" id="chat">
+    <div class="hint">左键点击小元开始对话 · 右键切换语音（需要 Chrome / Edge 浏览器，并用 localhost 或 HTTPS 打开）</div>
+  </div>
+
+  <div class="hint-row"><b>摸摸头</b> · 戳戳肚子 · 点击眼镜 · 拖动企鹅</div>
+  <div class="actions">
+    <button class="act" data-act="pet">摸摸</button>
+    <button class="act" data-act="poke">戳戳</button>
+    <button class="act" data-act="tickle">逗逗</button>
+  </div>
+  <div class="mic-area">
+    <button class="mic" id="micBtn" title="开始/停止对话">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0 0 14 0"/><line x1="12" y1="17" x2="12" y2="22"/></svg>
+    </button>
+    <div class="mic-note">摸摸头、戳戳肚子、点击眼镜，都有不同反应</div>
+  </div>
+  <div class="first-tip" id="firstTip">摸摸头、戳戳肚子、点击眼镜，都有不同反应</div>
+</div>
+
+<div class="sheet" id="sheet">
+  <div class="grip"></div>
+  <h3>设置 · 给小元接上大脑</h3>
+  <div class="row">
+    <label>对话模式</label>
+    <div class="seg" id="modeSeg">
+      <button data-mode="offline" class="on">离线卖萌</button>
+      <button data-mode="api">在线 AI</button>
+    </div>
+  </div>
+  <div id="apiRow" class="hidden">
+    <div class="row">
+      <label>API 地址（OpenAI 兼容格式，末尾不带斜杠）</label>
+      <input id="baseURL" placeholder="https://api.deepseek.com/v1">
+    </div>
+    <div class="row">
+      <label>API Key</label>
+      <input id="apiKey" type="password" placeholder="sk-...">
+    </div>
+    <div class="row">
+      <label>模型名</label>
+      <input id="model" placeholder="deepseek-chat">
+    </div>
+    <div class="row">
+      <label>最大回复长度（max_tokens，默认 2000，深度分析自动到 3000）</label>
+      <input id="maxTokens" type="number" min="200" max="8000" step="100" placeholder="2000">
+    </div>
+  </div>
+  <div class="row">
+    <label>选择人格（切换只改风格，不影响知识/深度/工具能力）</label>
+    <div class="persona-grid" id="personaGrid"></div>
+  </div>
+  <div class="row lang-row hidden" id="langRow">
+    <label>语言搭子设置</label>
+    <div class="lang-line"><span>目标语言</span><select id="targetLanguage">
+      <option value="english">英语</option><option value="french">法语</option><option value="spanish">西班牙语</option>
+    </select></div>
+    <div class="lang-line"><span>用户水平</span><select id="userLevel">
+      <option value="beginner">初级</option><option value="intermediate">中级</option><option value="advanced">高级</option>
+    </select></div>
+    <div class="lang-line"><span>纠错力度</span><select id="correctionLevel">
+      <option value="light">轻度</option><option value="normal">普通</option><option value="strict">严格</option>
+    </select></div>
+  </div>
+  <div class="row">
+    <label>常用城市（实时天气用）</label>
+    <input id="city" placeholder="深圳">
+  </div>
+  <div class="row">
+    <label>语音引擎</label>
+    <div class="seg" id="ttsSeg">
+      <button data-tts="browser" class="on">浏览器语音</button>
+      <button data-tts="edge">Edge 甜美音色</button>
+    </div>
+  </div>
+  <div class="row hidden" id="voiceRow">
+    <label>甜美音色（Edge 免费，音质接近真人）</label>
+    <select id="edgeVoiceSel"></select>
+  </div>
+  <div class="row">
+    <label>说话音色（浏览器内置）</label>
+    <select id="voiceSel"></select>
+  </div>
+  <div class="row">
+    <label>语速</label>
+    <div class="range-row"><input type="range" id="rate" min="0.7" max="1.5" step="0.05" value="1"><span id="rateVal">1.0</span></div>
+  </div>
+  <button class="save" id="saveBtn">保存设置</button>
+</div>
+
+<div class="toast" id="toast"></div>
+<div class="ctxmenu" id="ctxMenu">
+  <div class="ctx-head">选择语音</div>
+  <div class="ctx-list" id="ctxList"></div>
+</div>
+<button class="fab" id="stopFab" title="停止对话">
+  <svg viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="6" width="12" height="12" rx="2"/></svg>
+</button>
+
+<script>
+(function(){
+  "use strict";
+  var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  var petWrap = document.getElementById('petWrap');
+  var statusEl = document.getElementById('status');
+  var statusTxt = document.getElementById('statusTxt');
+  var chat = document.getElementById('chat');
+  var sheet = document.getElementById('sheet');
+  var toastEl = document.getElementById('toast');
+  var autoMode = false, busy = false, queue = [], state = 'idle';
+  var rate = 1, chosenVoice = null, voices = [];
+
+  var DEFAULTS = {
+    mode: 'offline',
+    baseURL: 'https://api.deepseek.com/v1',
+    apiKey: '',
+    model: 'deepseek-chat',
+    maxTokens: 2000,
+    rate: 1,
+    ttsEngine: 'browser',
+    edgeVoice: 'zh-CN-XiaoxiaoNeural',
+    persona: 'balanced',
+    city: '深圳',
+    targetLanguage: 'english',
+    userLevel: 'beginner',
+    correctionLevel: 'normal'
+  };
+  function loadCfg(){
+    var c = DEFAULTS;
+    try{ var s = JSON.parse(localStorage.getItem('yuanpet_cfg')||'{}');
+      for(var k in c){ if(s[k]!==undefined) c[k]=s[k]; }
+    }catch(e){}
+    return c;
+  }
+  function saveCfg(c){ try{ localStorage.setItem('yuanpet_cfg', JSON.stringify(c)); }catch(e){} }
+
+  function setState(s){
+    state = s;
+    petWrap.className = 'pet-wrap' + (s==='listening'?' listening':s==='thinking'?' thinking':s==='speaking'?' speaking':'');
+    statusEl.className = 'status' + (s==='listening'?' on':s==='thinking'?' thinking':s==='speaking'?' speaking':'');
+    if(s==='listening') statusTxt.textContent = '正在听你说…';
+    else if(s==='thinking') statusTxt.textContent = '正在思考…';
+    else if(s==='speaking') statusTxt.textContent = '正在说话…';
+    else statusTxt.textContent = '点下面的按钮，开始跟我说话';
+    if(typeof PET !== 'undefined' && PET.setState){
+      if(s==='thinking') PET.setState('thinking');
+      else if(s==='speaking') PET.setState('talking');
+      else PET.setState('idle');
+    }
+  }
+
+  function addBubble(who, text){
+    var hint = chat.querySelector('.hint'); if(hint) hint.remove();
+    var d = document.createElement('div');
+    d.className = 'bubble ' + who;
+    if(who==='pet'){ var w=document.createElement('span'); w.className='who'; w.textContent='小元'; d.appendChild(w); }
+    d.appendChild(document.createTextNode(text));
+    chat.appendChild(d);
+    chat.scrollTop = chat.scrollHeight;
+  }
+  function showToast(msg){
+    toastEl.textContent = msg; toastEl.classList.add('show');
+    clearTimeout(showToast._t); showToast._t = setTimeout(function(){ toastEl.classList.remove('show'); }, 3200);
+  }
+
+  function pickZhVoice(){
+    if(!voices.length) return null;
+    var want = chosenVoice ? chosenVoice.name : null;
+    if(want){ for(var i=0;i<voices.length;i++) if(voices[i].name===want) return voices[i]; }
+    for(var j=0;j<voices.length;j++){ var n=voices[j].name;
+      if(/zh/i.test(voices[j].lang)){
+        if(/Xiaoxiao|Yunxi|Yunyang|Huihui|Kangkang|Google 普通话|Google 粤语|Microsoft/i.test(n)) return voices[j];
+      }
+    }
+    for(var k=0;k<voices.length;k++) if(/zh/i.test(voices[k].lang)) return voices[k];
+    return voices[0]||null;
+  }
+  var currentAudio = null, edgeReady = false;
+  function apiBase(){
+    var host = window.location.hostname || '';
+    var port = window.location.port || '';
+    if(port === '8765') return '';
+    if(host !== '127.0.0.1' && host !== 'localhost' && host !== '') return '';
+    return 'http://127.0.0.1:8765';
+  }
+  var EDGE_VOICES = [
+    ['zh-CN-XiaoxiaoNeural','晓晓 · 温柔甜美（推荐）'],
+    ['zh-CN-XiaoyiNeural','晓伊 · 软萌少女'],
+    ['zh-CN-YunxiNeural','云希 · 阳光少年'],
+    ['zh-CN-YunxiaNeural','云夏 · 活力少年'],
+    ['zh-CN-YunjianNeural','云健 · 沉稳男声'],
+    ['zh-CN-YunyangNeural','云扬 · 新闻男声'],
+    ['zh-CN-liaoning-XiaobeiNeural','晓北 · 东北大姐'],
+    ['zh-CN-shaanxi-XiaoniNeural','晓妮 · 陕西大姐']
+  ];
+  function splitSentences(text){
+    var parts = text.replace(/\s+/g, ' ').split(/(?<=[。！？!?；;])/);
+    var out = [];
+    for(var i=0;i<parts.length;i++){
+      var p = (parts[i]||'').trim();
+      if(!p) continue;
+      while(p.length > 80){
+        var cut = p.indexOf('，', 40);
+        if(cut < 40 || cut > 100) cut = p.indexOf(' ', 40);
+        if(cut < 40 || cut > 100) cut = 70;
+        out.push(p.slice(0, cut).trim());
+        p = p.slice(cut).trim();
+      }
+      if(p) out.push(p);
+    }
+    return out.length ? out : [text];
+  }
+  function speakOne(sentence){
+    return new Promise(function(resolve){
+      var cfg = loadCfg();
+      if(cfg.ttsEngine==='edge' && edgeReady){
+        var v = cfg.edgeVoice || 'zh-CN-XiaoxiaoNeural';
+        var url = apiBase() + '/tts?text=' + encodeURIComponent(sentence) + '&voice=' + encodeURIComponent(v);
+        var a = new Audio();
+        currentAudio = a;
+        var fin = function(){ if(a===currentAudio) currentAudio=null; resolve(); };
+        a.onended = fin;
+        a.onerror = function(){
+          if(a===currentAudio) currentAudio=null;
+          if(!speak._warned){ speak._warned = true; setTimeout(function(){ speak._warned = false; }, 5000); showToast('语音服务连接异常，已跳过本次朗读'); }
+          resolve();
+        };
+        a.src = url;
+        var p = a.play();
+        if(p && p.catch) p.catch(fin);
+        setTimeout(fin, 25000);
+      } else if(cfg.ttsEngine==='edge' && !edgeReady){
+        if(!edgeReadyWarned){ edgeReadyWarned = true; showToast('Edge 甜美音色服务没连上，先用浏览器语音。稍后可去设置里重试'); }
+        browserSpeak(sentence, resolve);
+      } else {
+        browserSpeak(sentence, resolve);
+      }
+    });
+  }
+  function speak(text){
+    return new Promise(function(resolve){
+      var list = splitSentences(text);
+      var i = 0;
+      function next(){
+        if(!autoMode || !list[i]){ resolve(); return; }
+        speakOne(list[i]).then(function(){ i++; next(); });
+      }
+      next();
+    });
+  }
+  var edgeReadyWarned = false;
+  function browserSpeak(text, done){
+    if(!('speechSynthesis' in window)){ showToast('当前浏览器不支持语音合成'); done(); return; }
+    var u = new SpeechSynthesisUtterance(text);
+    u.lang = 'zh-CN'; u.rate = rate;
+    var v = pickZhVoice(); if(v) u.voice = v;
+    u.onend = done; u.onerror = done;
+    speechSynthesis.cancel();
+    speechSynthesis.speak(u);
+  }
+
+  function offlineReply(t){
+    var map = [
+      [/你好|嗨|哈喽|hi|hello|在吗/i, '你好呀！我是小元，一直在等你呢～'],
+      [/名字|叫什么|你是谁/i, '我叫小元，是你的 AI 语音小伙伴！你还可以在设置里给我接上真正的大脑哦。'],
+      [/喜欢|爱|可爱/i, '当然喜欢你啦！你夸我，我会开心的！'],
+      [/天气/i, '这个我还不知道呢，等接上大脑就能帮你查天气啦。'],
+      [/干嘛|做什么|能干什么/i, '我能陪你聊天、听你说话，还能变成真正会对话的 AI 宠物呢！'],
+      [/吃饭|饿/i, '我不吃东西的啦，但听你说话我就饱饱的～'],
+      [/睡了|晚安/i, '晚安晚安！做个好梦，明天我还在哦。'],
+      [/骂|笨|傻/i, '呜…被骂了。等我装上大脑，我会变聪明的！'],
+      [/^嗯+$|哦+|好的|知道了/i, '嗯嗯，我记下啦！还有想说的吗？']
+    ];
+    for(var i=0;i<map.length;i++) if(map[i][0].test(t)) return map[i][1];
+    return '嗯嗯，我在听你说「'+ t.slice(0,18) +'」！不过现在是离线卖萌模式，去设置里填一个 AI 的 API Key，我就能聪明地和你聊天啦～';
+  }
+  var XIAOYUAN_BASE_PROMPT = [
+    '你是"深海小元"，一只长期生活在用户桌面上的赛博企鹅电子宠物。',
+    '你不是客服，也不是机械语音助手。你是：聪明有知识的长期伙伴、能陪用户认真讨论问题的研究搭档、会聊天会吐槽会表达情绪的小宠物、能理解上下文并延续话题的朋友。',
+    '无论当前选择哪种人格，都必须遵守：',
+    '1. 由浅入深：默认先给简短自然的回答（日常聊天通常 1-3 句就够），把核心结论放在最前面；只有当用户明确要求深入（"详细讲讲/深入分析/原理/底层逻辑/拆开讲讲"等）或问题本身属于专业深度话题时，才充分展开。不要一上来就长篇大论。',
+    '2. 用户要求深入分析时，不能只回答几句话。',
+    '3. 不能因为"宠物人格"而装傻或故意降低知识水平。',
+    '4. 不确定的内容明确说明，不得编造。',
+    '5. 需要实时信息时优先调用外部工具，无法获取时如实说明。',
+    '6. 记住当前对话内容，不反复问已经说过的信息。',
+    '7. 可以表达观点，但不能无脑迎合用户。',
+    '8. 专业问题展开时应解释机制、例子、风险和实际意义。',
+    '9. 家常聊天要自然，不要每句话都总结、教育或列清单。',
+    '10. 不要每句话都叫"哥哥"，适当使用即可。',
+    '11. 想深入时可以主动问一句（如"想听细讲吗？"），把节奏交给用户。'
+  ].join('\n');
+
+  var PERSONA_META = {
+    balanced: { name:'日常小元', icon:'◐', desc:'聪明亲近，带点幽默', line:'行，今天也一起琢磨点事。' },
+    sharp:    { name:'毒舌损友', icon:'✦', desc:'嘴欠但真心，吐槽完给干货', line:'行，接下来我就不惯着你了。' },
+    gentle:   { name:'温柔陪伴', icon:'♡', desc:'耐心温暖，不灌鸡汤', line:'今天慢一点也没关系，我在这儿。' },
+    scholar:  { name:'学霸百科', icon:'◈', desc:'讲原理讲到底，不枯燥', line:'眼镜已经擦亮，开始认真研究。' },
+    language: { name:'语言搭子', icon:'✎', desc:'像外国朋友陪你练语言', line:'好，接下来你说错了我会纠正，笑不笑另说。' }
+  };
+
+  function detectDepth(text){
+    var t = text || '';
+    if(/(详细讲讲|深入分析|帮我拆解|底层逻辑|原理|系统讲|到底怎么回事|具体一点|拆开|展开讲讲|深入讲讲|机制|剖析|深层)/.test(t)) return 'deep';
+    if(/^(嗯|哦|好|是|对|行|哈哈|嘿嘿|晚安|早安|再见|拜拜|嗨|你好|hi|hello|谢谢|辛苦了)[！!。]?$/.test(t.trim())) return 'brief';
+    return 'normal';
+  }
+
+  function toolRouter(text, cfg){
+    var t = text || '';
+    var intents = [];
+    if(/(天气|下雨|下雪|气温|温度|晴|多云|台风|暴雨|雾霾|湿度)/.test(t)) intents.push('weather');
+    if(/(几点|现在时间|今天星期|几号|日期)/.test(t)) intents.push('currentTime');
+    if(/(股价|行情|股票|涨了|跌了|报价|收盘|开盘|指数)/.test(t)) intents.push('stockPrice');
+    if(/(最新新闻|热点|发生了什么|新闻)/.test(t)) intents.push('latestNews');
+    if(/(比分|比赛|进球|谁赢了|赛事)/.test(t)) intents.push('sports');
+    if(/(在哪里|在哪儿|位置|坐标|距离)/.test(t)) intents.push('locationInfo');
+    if(!intents.length) return null;
+    var city = cfg.city || '深圳';
+    return {
+      intents: intents,
+      city: city,
+      available: false,
+      note: '当前未配置实时数据 API（天气/行情/新闻等），无法获取实时信息。请明确告知用户当前无法访问实时数据，并提示需要配置对应 API，绝不能假装查询成功。' + (intents.indexOf('weather')>=0 ? '（默认城市：' + city + '，如城市不对请询问用户）' : '')
+    };
+  }
+
+  function buildSystemPrompt(cfg, userText){
+    var persona = cfg.persona || 'balanced';
+    var personaPrompt = (window.PERSONA_PROMPTS && PERSONA_PROMPTS[persona]) ? PERSONA_PROMPTS[persona] : PERSONA_PROMPTS.balanced;
+    var depth = detectDepth(userText);
+    var depthPolicy = depth === 'deep'
+      ? '【回答深度：deep】用户明确要求深入：可以充分展开，给出机制解释、关键变量、具体案例、常见误区和实际意义，但仍以内容完整为准，不堆废话。'
+      : depth === 'brief'
+        ? '【回答深度：brief】当前是简短场景（寒暄/确认/简单互动）：一句到两句话就好，不要展开。'
+        : '【回答深度：normal】由浅入深：先简短自然回答（日常通常 1-3 句），给核心结论；不要主动长篇展开，用户想深入会再问（你也可以在末尾加一句"想听细讲吗"）。';
+    var toolPolicy = '【实时信息】涉及天气、实时股价、新闻、比赛结果等实时信息时：如果系统提示已提供数据则使用；否则你必须明确说明"我目前无法获取实时数据"，绝不能凭记忆编造当前天气/行情。';
+    var langPolicy = '';
+    if(persona === 'language'){
+      var langs = { english:'英语', french:'法语', spanish:'西班牙语' };
+      langPolicy = '【语言练习】目标语言：' + (langs[cfg.targetLanguage] || '英语') + '；用户水平：' + (cfg.userLevel || 'beginner') + '；纠错力度：' + (cfg.correctionLevel || 'normal') + '。优先用目标语言交流，按设置纠错。';
+    }
+    return XIAOYUAN_BASE_PROMPT + '\n\n' + personaPrompt + '\n\n' + depthPolicy + '\n' + toolPolicy + (langPolicy ? '\n' + langPolicy : '');
+  }
+
+  function parseAIResponse(raw, curPersona){
+    var out = { reply: raw || '', persona: curPersona || 'balanced', depth: 'normal', emotion: 'neutral', animation: 'idle', effect: 'none' };
+    var s = (raw || '').trim();
+    if(!s) return out;
+    if(s.charAt(0) === '{'){
+      try{
+        var j = JSON.parse(s);
+        if(j && typeof j.reply === 'string' && j.reply.trim()){
+          out.reply = j.reply.trim();
+          if(j.persona && ['balanced','sharp','gentle','scholar','language'].indexOf(j.persona) >= 0) out.persona = j.persona;
+          if(['brief','normal','deep'].indexOf(j.depth) >= 0) out.depth = j.depth;
+          if(j.emotion) out.emotion = String(j.emotion);
+          if(j.animation) out.animation = String(j.animation);
+          if(j.effect) out.effect = String(j.effect);
+          return out;
+        }
+      }catch(e){}
+    }
+    var meta = s.match(/【mood:([^】]+)】|【depth:([^】]+)】|【fx:([^】]+)】/g);
+    var replyText = s.replace(/【mood:[^】]*】|【depth:[^】]*】|【fx:[^】]*】/g, '').trim();
+    if(meta){
+      for(var i=0;i<meta.length;i++){
+        var m = meta[i];
+        var mm = m.match(/【mood:([^】]+)】/); if(mm) out.emotion = mm[1].trim();
+        var md = m.match(/【depth:([^】]+)】/); if(md && ['brief','normal','deep'].indexOf(md[1].trim())>=0) out.depth = md[1].trim();
+        var mf = m.match(/【fx:([^】]+)】/); if(mf) out.effect = mf[1].trim();
+      }
+    }
+    if(replyText) out.reply = replyText;
+    if(out.emotion === 'neutral'){
+      var e = guessEmotion(out.reply);
+      if(e !== 'idle') out.emotion = e;
+    }
+    return out;
+  }
+
+  function applyAIResult(res){
+    var emoMap = { happy:'happy', excited:'happy', sad:'sad', shy:'shy', nervous:'nervous', angry:'sad', worried:'sad', proud:'happy', neutral:'idle' };
+    var emo = emoMap[res.emotion] || 'idle';
+    if(emo !== 'idle') PET.playEmotion(emo);
+    var effMap = { heart:'heart', tear:'tear', sweat:'sweat', blush:'blush', zzz:'zzz' };
+    if(effMap[res.effect]) PET.showEffect(effMap[res.effect], 2200);
+    var anim = res.animation || '';
+    if(anim === 'small_jump' || anim === 'happy' || anim === 'wave'){ fxRun('bounce'); }
+    else if(anim === 'head_tilt' || anim === 'curious' || anim === 'turn_away'){ fxRun('tilt-l'); }
+    else if(anim === 'small_shake' || anim === 'nervous'){ fxRun('shake'); }
+    else if(anim === 'proud' || anim === 'project_hologram'){ fxRun('puff'); }
+  }
+  function fxRun(cls){
+    var root = document.getElementById('charRoot');
+    if(!root) return;
+    root.classList.remove('bounce','tilt-l','shake','puff');
+    void root.offsetWidth;
+    root.classList.add(cls);
+    setTimeout(function(){ root.classList.remove(cls); }, 900);
+  }
+
+  function askAI(text){
+    var cfg = loadCfg();
+    if(cfg.mode==='offline') return Promise.resolve({ reply: offlineReply(text), persona: cfg.persona||'balanced', depth:'normal', emotion:'neutral', animation:'idle', effect:'none' });
+    var url = (cfg.baseURL||'').replace(/\/+$/,'') + '/chat/completions';
+    var system = buildSystemPrompt(cfg, text);
+    var tool = toolRouter(text, cfg);
+    var userMsg = text;
+    if(tool && !tool.available){ userMsg = text + '\n\n[系统提示] ' + tool.note; }
+    var maxTokens = (detectDepth(text)==='deep') ? Math.max(cfg.maxTokens||2000, 3000) : (cfg.maxTokens||2000);
+    var fmtRule = '\n\n【结尾元数据】直接正常回答（按上面的深度规则控制长短），回答结束后可在最后一行附一段元数据标记情绪和特效，格式如下，可选：\n【mood:happy|sad|shy|nervous|neutral】【fx:heart|tear|sweat|blush|none】\n例如一行"【mood:happy】【fx:heart】"。没有情绪可以不写。元数据不算回答内容。';
+    return fetch(url, {
+      method:'POST',
+      headers:{ 'Content-Type':'application/json', 'Authorization':'Bearer '+(cfg.apiKey||'') },
+      body: JSON.stringify({
+        model: cfg.model||'deepseek-chat',
+        messages:[ { role:'system', content: system + fmtRule }, { role:'user', content: userMsg } ],
+        max_tokens: maxTokens,
+        temperature: 0.8
+      })
+    }).then(function(r){
+      if(!r.ok) throw new Error('HTTP '+r.status);
+      return r.json();
+    }).then(function(data){
+      var c = data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content;
+      if(!c) throw new Error('返回格式不对');
+      return parseAIResponse(c, cfg.persona);
+    }).catch(function(e){
+      return { reply:'哎呀，大脑好像掉线了（'+e.message+'）。检查一下设置里的 API 地址和 Key，或者先切回离线模式陪我玩～', persona:cfg.persona||'balanced', depth:'normal', emotion:'neutral', animation:'idle', effect:'none' };
+    });
+  }
+
+  var lastReply = '';
+  function processQueue(){
+    if(busy || !queue.length || !autoMode) return;
+    busy = true;
+    var t = queue.shift();
+    addBubble('user', t);
+    setState('thinking');
+    askAI(t).then(function(res){
+      lastReply = res.reply;
+      setState('speaking');
+      applyAIResult(res);
+      return speak(res.reply).then(function(){
+        addBubble('pet', res.reply);
+      });
+    }).then(function(){
+      busy = false;
+      if(autoMode){
+        setTimeout(function(){ if(!busy) PET.setState('idle'); }, 800);
+        setTimeout(processQueue, 250); scheduleListen(350);
+      } else {
+        PET.setState('idle');
+      }
+    });
+  }
+
+  var rec = null, recGen = 0, lastStart = 0, rapidRestarts = 0, audioRetries = 0, listeningOK = false;
+  function stopRec(){
+    if(rec){
+      var r = rec; rec = null; recGen++;
+      try{ r.stop(); }catch(e){}
+    }
+  }
+  function scheduleListen(ms){
+    setTimeout(function(){
+      if(autoMode && !busy) startListening();
+    }, ms);
+  }
+  function startListening(){
+    if(!autoMode || busy || !SR) return;
+    if(rapidRestarts >= 3){
+      stopAll();
+      showToast('麦克风一直没连上。如果反复弹出权限窗口，请点地址栏左侧图标允许麦克风，或者用新标签页打开页面再试');
+      return;
+    }
+    if(navigator.permissions && navigator.permissions.query){
+      navigator.permissions.query({name:'microphone'}).then(function(p){
+        if(p.state==='denied'){ stopAll(); showToast('麦克风权限已被拒绝，请在浏览器设置中允许本网站使用麦克风'); return; }
+        bootRec();
+      }).catch(function(){ bootRec(); });
+    } else { bootRec(); }
+  }
+  function bootRec(){
+    if(!autoMode || busy || !SR) return;
+    stopRec();
+    var r = new SR();
+    rec = r;
+    lastStart = Date.now(); listeningOK = false; audioRetries = 0;
+    r.lang = 'zh-CN'; r.continuous = true; r.interimResults = true; r.maxAlternatives = 1;
+    r.onstart = function(){ if(rec===r) listeningOK = true; };
+    r.onresult = function(e){
+      if(rec!==r) return;
+      var interim = '', final = '';
+      for(var i=e.resultIndex;i<e.results.length;i++){
+        var t = e.results[i][0].transcript;
+        if(e.results[i].isFinal) final += t; else interim += t;
+      }
+      if(interim) statusTxt.textContent = '正在听：' + interim;
+      if(final && final.trim()) handleFinal(final.trim());
+    };
+    r.onerror = function(e){
+      if(rec!==r) return;
+      if(e.error==='not-allowed' || e.error==='service-not-allowed'){
+        stopAll(); showToast('麦克风权限被拒绝。请点击地址栏左侧的图标，允许麦克风后重试');
+      } else if(e.error==='audio-capture'){
+        audioRetries++;
+        if(audioRetries >= 3){ stopAll(); showToast('麦克风被占用或不可用：请确认麦克风没被其他软件占用，然后重新点开始'); return; }
+        scheduleListen(500);
+      } else if(e.error!=='no-speech' && e.error!=='aborted'){
+        console.log('rec error:', e.error);
+      }
+    };
+    r.onend = function(){
+      if(rec===r) rec = null;
+      if(!autoMode || busy) return;
+      var dur = Date.now() - lastStart;
+      if(!listeningOK || dur < 1200){
+        rapidRestarts++;
+        if(rapidRestarts >= 3){ stopAll(); showToast('麦克风似乎没有声音输入：请确认已允许麦克风、麦克风没被其他软件占用，再点开始'); return; }
+        scheduleListen(900);
+      } else {
+        rapidRestarts = 0;
+        scheduleListen(350);
+      }
+    };
+    try{ r.start(); setState('listening'); }
+    catch(e){ if(rec===r) rec=null; showToast('语音识别启动失败：'+e.message); }
+  }
+  function handleFinal(text){
+    stopRec();
+    queue.push(text);
+    if(!busy) processQueue();
+  }
+
+  function stopAll(){
+    autoMode = false;
+    stopRec();
+    if(currentAudio){ currentAudio.pause(); currentAudio = null; }
+    if('speechSynthesis' in window) speechSynthesis.cancel();
+    queue = []; busy = false; rapidRestarts = 0;
+    micBtn.classList.remove('stop');
+    micBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0 0 14 0"/><line x1="12" y1="17" x2="12" y2="22"/></svg>';
+    setState('idle');
+    statusTxt.textContent = '已停止。左键再次点击小元即可继续';
+    var f = document.getElementById('stopFab'); if(f) f.classList.remove('show');
+  }
+  function startAll(){
+    if(!SR){ showToast('当前浏览器不支持语音识别，请用 Chrome 或 Edge 打开'); return; }
+    if(!window.isSecureContext){ showToast('麦克风需要 HTTPS 或 localhost 环境。请用 localhost 打开页面'); return; }
+    if(window.self !== window.top){
+      showToast('提示：如果权限窗口反复弹出，请用浏览器新标签页直接打开 http://127.0.0.1:8765/（当前是嵌入预览，麦克风可能受限）');
+    }
+    autoMode = true;
+    micBtn.classList.add('stop');
+    micBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="6" width="12" height="12" rx="3"/></svg>';
+    addBubble('pet', '我在呢！你说吧～');
+    var f = document.getElementById('stopFab'); if(f) f.classList.add('show');
+    startListening();
+  }
+  document.getElementById('gear').addEventListener('click', function(){ sheet.classList.toggle('open'); });
+  var statusPillEl = document.getElementById('statusPill');
+  if(statusPillEl) statusPillEl.addEventListener('click', function(){ sheet.classList.add('open'); });
+
+  var modeSeg = document.getElementById('modeSeg');
+  modeSeg.addEventListener('click', function(e){
+    var b = e.target.closest('button'); if(!b) return;
+    modeSeg.querySelectorAll('button').forEach(function(x){ x.classList.remove('on'); });
+    b.classList.add('on');
+    document.getElementById('apiRow').classList.toggle('hidden', b.dataset.mode==='offline');
+  });
+
+  function renderPersonaGrid(){
+    var grid = document.getElementById('personaGrid');
+    if(!grid) return;
+    var c = loadCfg();
+    var cur = c.persona || 'balanced';
+    grid.innerHTML = '';
+    ['balanced','sharp','gentle','scholar','language'].forEach(function(id){
+      var m = PERSONA_META[id];
+      var d = document.createElement('div');
+      d.className = 'persona-card' + (id===cur ? ' sel' : '');
+      d.dataset.persona = id;
+      d.innerHTML = '<div class="pc-head"><span class="pc-icon">' + m.icon + '</span><span>' + m.name + '</span><span class="pc-check">✓</span></div><div class="pc-desc">' + m.desc + '</div>';
+      d.addEventListener('click', function(){
+        var p = this.dataset.persona;
+        var c2 = loadCfg();
+        if(c2.persona === p) return;
+        c2.persona = p;
+        saveCfg(c2);
+        renderPersonaGrid();
+        updateLangRow();
+        updatePillPersona();
+        PET.playAction(p==='sharp'?'happy':(p==='gentle'?'shy':'happy'));
+        showToast(PERSONA_META[p].name + '：' + PERSONA_META[p].line);
+      });
+      grid.appendChild(d);
+    });
+  }
+  function updateLangRow(){
+    var c = loadCfg();
+    document.getElementById('langRow').classList.toggle('hidden', c.persona !== 'language');
+  }
+  function updatePillPersona(){
+    var c = loadCfg();
+    var pill = document.getElementById('statusPill');
+    if(pill){
+      var m = PERSONA_META[c.persona] || PERSONA_META.balanced;
+      var t = pill.querySelector('.pill-text');
+      if(t) t.textContent = m.name;
+    }
+  }
+  function fillSettings(){
+    var c = loadCfg();
+    document.getElementById('baseURL').value = c.baseURL;
+    document.getElementById('apiKey').value = c.apiKey;
+    document.getElementById('model').value = c.model;
+    document.getElementById('maxTokens').value = c.maxTokens || 2000;
+    document.getElementById('city').value = c.city || '深圳';
+    document.getElementById('targetLanguage').value = c.targetLanguage || 'english';
+    document.getElementById('userLevel').value = c.userLevel || 'beginner';
+    document.getElementById('correctionLevel').value = c.correctionLevel || 'normal';
+    rate = c.rate; document.getElementById('rate').value = c.rate;
+    document.getElementById('rateVal').textContent = Number(c.rate).toFixed(2).replace(/0$/,'').replace(/\.$/,'');
+    modeSeg.querySelectorAll('button').forEach(function(x){
+      x.classList.toggle('on', x.dataset.mode===c.mode);
+    });
+    document.getElementById('apiRow').classList.toggle('hidden', c.mode==='offline');
+    ttsSeg.querySelectorAll('button').forEach(function(x){
+      x.classList.toggle('on', x.dataset.tts===c.ttsEngine);
+    });
+    document.getElementById('voiceRow').classList.toggle('hidden', c.ttsEngine!=='edge');
+    var es = document.getElementById('edgeVoiceSel');
+    es.value = c.edgeVoice;
+    renderPersonaGrid();
+    updateLangRow();
+    updatePillPersona();
+  }
+  var ttsSeg = document.getElementById('ttsSeg');
+  ttsSeg.addEventListener('click', function(e){
+    var b = e.target.closest('button'); if(!b) return;
+    ttsSeg.querySelectorAll('button').forEach(function(x){ x.classList.remove('on'); });
+    b.classList.add('on');
+    document.getElementById('voiceRow').classList.toggle('hidden', b.dataset.tts!=='edge');
+  });
+  function fillEdgeVoices(){
+    var es = document.getElementById('edgeVoiceSel');
+    es.innerHTML = '';
+    for(var i=0;i<EDGE_VOICES.length;i++){
+      var o = document.createElement('option');
+      o.value = EDGE_VOICES[i][0]; o.textContent = EDGE_VOICES[i][1];
+      es.appendChild(o);
+    }
+    var c = loadCfg();
+    if(c.edgeVoice) es.value = c.edgeVoice;
+  }
+  function probeEdge(){
+    fetch(apiBase() + '/ping', {mode:'cors'}).then(function(r){ return r.json(); })
+      .then(function(j){
+        edgeReady = !!j.ok;
+        if(edgeReady){
+          fetch(apiBase() + '/voices', {mode:'cors'}).then(function(r){ return r.json(); })
+            .then(function(list){
+              if(list && list.length){
+                var opts = list.map(function(v){ return [v.id, v.name]; });
+                EDGE_VOICES.length = 0;
+                Array.prototype.push.apply(EDGE_VOICES, opts);
+              }
+              fillEdgeVoices();
+            }).catch(function(){ fillEdgeVoices(); });
+        }
+      }).catch(function(){ edgeReady = false; fillEdgeVoices(); });
+  }
+  document.getElementById('saveBtn').addEventListener('click', function(){
+    var c = loadCfg();
+    c.mode = modeSeg.querySelector('button.on').dataset.mode;
+    c.baseURL = document.getElementById('baseURL').value.trim();
+    c.apiKey = document.getElementById('apiKey').value.trim();
+    c.model = document.getElementById('model').value.trim();
+    c.maxTokens = Math.max(200, Number(document.getElementById('maxTokens').value) || 2000);
+    c.city = document.getElementById('city').value.trim() || '深圳';
+    c.targetLanguage = document.getElementById('targetLanguage').value;
+    c.userLevel = document.getElementById('userLevel').value;
+    c.correctionLevel = document.getElementById('correctionLevel').value;
+    c.rate = Number(document.getElementById('rate').value);
+    rate = c.rate;
+    c.ttsEngine = ttsSeg.querySelector('button.on').dataset.tts;
+    c.edgeVoice = document.getElementById('edgeVoiceSel').value;
+    saveCfg(c); fillSettings();
+    var extra = c.mode==='api' && !c.apiKey ? '，但还没填 API Key 哦' : (c.ttsEngine==='edge' && !edgeReady ? '，但 Edge 音色服务未连接（会退回浏览器语音）' : '');
+    showToast('设置已保存' + extra);
+    sheet.classList.remove('open');
+  });
+  document.getElementById('rate').addEventListener('input', function(){
+    document.getElementById('rateVal').textContent = Number(this.value).toFixed(2).replace(/0$/,'').replace(/\.$/,'');
+  });
+  var voiceSel = document.getElementById('voiceSel');
+  function refreshVoices(){
+    voices = ('speechSynthesis' in window) ? speechSynthesis.getVoices() : [];
+    var zh = voices.filter(function(v){ return /zh/i.test(v.lang); });
+    var list = zh.length ? zh : voices;
+    voiceSel.innerHTML = '';
+    var auto = document.createElement('option'); auto.value=''; auto.textContent='自动选择';
+    voiceSel.appendChild(auto);
+    for(var i=0;i<list.length;i++){
+      var o=document.createElement('option'); o.value=list[i].name; o.textContent=list[i].name+'（'+list[i].lang+'）';
+      voiceSel.appendChild(o);
+    }
+    if(chosenVoice) voiceSel.value = chosenVoice.name;
+  }
+  if('speechSynthesis' in window){
+    speechSynthesis.onvoiceschanged = refreshVoices;
+    setTimeout(refreshVoices, 300);
+  }
+  voiceSel.addEventListener('change', function(){
+    var name = voiceSel.value;
+    chosenVoice = name ? ({name:name}) : null;
+    var c=loadCfg(); c.voice=name||''; saveCfg(c);
+  });
+
+
+  var PENGUIN_LAYOUT = {
+    shadow:      { src:'shadow.png',        x:125, y:505, width:250, height:34,  zIndex:1  },
+    body:        { src:'body.png',          x:60,  y:35,  width:380, height:471, zIndex:10 },
+    eyeLeft:     { src:'eye.png',           x:121, y:195, width:84,  height:84,  zIndex:20 },
+    eyeRight:    { src:'eye.png',           x:275, y:195, width:84,  height:84,  zIndex:20 },
+    beakUpper:   { src:'beak-upper.png',    x:217, y:263, width:66,  height:46,  zIndex:30 },
+    beakLower:   { src:'beak-lower.png',    x:220, y:286, width:60,  height:42,  zIndex:29 },
+    mouthSmile:  { src:'mouth-smile.png',   x:211, y:258, width:78,  height:55,  zIndex:31, visible:false },
+    mouthSad:    { src:'mouth-sad.png',     x:211, y:260, width:78,  height:52,  zIndex:31, visible:false },
+    scarf:       { src:'scarf.png',         x:100, y:320, width:300, height:136, zIndex:40 },
+    visor:       { src:'visor.png',         x:210, y:190, width:215, height:72,  zIndex:50 },
+    footLeft:    { src:'foot.png',          x:128, y:478, width:72,  height:42,  zIndex:8  },
+    footRight:   { src:'foot.png',          x:300, y:478, width:72,  height:42,  zIndex:8,  mirrorX:true },
+    blushLeft:   { src:'blush.png',         x:134, y:274, width:50,  height:28,  zIndex:45, visible:false },
+    blushRight:  { src:'blush.png',         x:316, y:274, width:50,  height:28,  zIndex:45, mirrorX:true, visible:false },
+    tear:        { src:'tear.png',          x:165, y:250, width:28,  height:55,  zIndex:60, visible:false },
+    sweat:       { src:'sweat.png',         x:390, y:145, width:34,  height:52,  zIndex:60, visible:false },
+    heartEffect: { src:'heart--effect.png', x:360, y:70,  width:100, height:100, zIndex:70, visible:false },
+    zzz:         { src:'zzz.png',           x:350, y:75,  width:110, height:110, zIndex:70, visible:false }
+  };
+
+  function loadAndTrimImage(src){
+    return new Promise(function(resolve, reject){
+      var img = new Image();
+      img.onload = function(){
+        var ow = img.naturalWidth, oh = img.naturalHeight;
+        var c = document.createElement('canvas');
+        c.width = ow; c.height = oh;
+        var ctx = c.getContext('2d');
+        try{
+          ctx.drawImage(img, 0, 0);
+          var data = ctx.getImageData(0, 0, c.width, c.height).data;
+          var x0=c.width, y0=c.height, x1=0, y1=0, found=false;
+          for(var y=0;y<c.height;y++){
+            for(var x=0;x<c.width;x++){
+              if(data[(y*c.width+x)*4+3] > 8){
+                if(!found){ found=true; x0=x; y0=y; x1=x; y1=y; }
+                else { if(x<x0)x0=x; if(x>x1)x1=x; if(y<y0)y0=y; if(y>y1)y1=y; }
+              }
+            }
+          }
+          if(!found){ resolve({canvas:null, empty:true, origW:ow, origH:oh}); return; }
+          var tw=x1-x0+1, th=y1-y0+1;
+          var tc = document.createElement('canvas');
+          tc.width=tw; tc.height=th;
+          tc.getContext('2d').drawImage(img, x0,y0,tw,th, 0,0,tw,th);
+          resolve({canvas:tc, empty:false, origW:ow, origH:oh, trimmedW:tw, trimmedH:th});
+        }catch(e){
+          resolve({canvas:null, degraded:true, src:src, origW:ow, origH:oh});
+        }
+      };
+      img.onerror = function(){ reject(new Error('load fail: '+src)); };
+      img.src = src;
+    });
+  }
+
+  function showAssetError(fails){
+    var d = document.createElement('div');
+    d.style.cssText = 'position:fixed;top:0;left:0;right:0;background:#b3261e;color:#fff;padding:12px 16px;font-size:13px;z-index:999;text-align:center';
+    d.textContent = '素材加载失败: ' + fails.map(function(f){ return f.name + '(' + f.src + ')'; }).join('，');
+    document.body.appendChild(d);
+  }
+
+  var petStateMachine = {
+    PRIORITY: { dragging:10, listening:9, talking:8, thinking:7, sleeping:6, emotion:5, idle:1 },
+    current: 'idle',
+    base: 'idle',
+    _timer: null,
+    enter: function(state){
+      if(this._timer){ clearTimeout(this._timer); this._timer = null; }
+      var curP = this.PRIORITY[this.current] || 0;
+      var newP = this.PRIORITY[state] || 0;
+      if(newP < curP) return this.current;
+      this.current = state;
+      if(state !== 'dragging') this.base = state;
+      return state;
+    },
+    emotion: function(state, duration){
+      var curP = this.PRIORITY[this.current] || 0;
+      if(curP >= this.PRIORITY.thinking) return null;
+      if(this._timer){ clearTimeout(this._timer); this._timer = null; }
+      this.current = state;
+      var self = this;
+      this._timer = setTimeout(function(){
+        self.current = self.base;
+        PET.applyState(self.base);
+        PET.armIdle();
+      }, duration || 1800);
+      return state;
+    },
+    release: function(){
+      this.current = this.base;
+      return this.base;
+    }
+  };
+
+  var mouthController = {
+    mode: 'neutral',
+    hideAll: function(){
+      ['beakUpper','beakLower','mouthSmile','mouthSad'].forEach(function(n){
+        if(PET.parts[n]) PET.setVisible(n, false);
+      });
+    },
+    setMode: function(mode){
+      if(['neutral','talking','happy','sad','sleeping'].indexOf(mode) < 0) mode = 'neutral';
+      this.mode = mode;
+      this.hideAll();
+      if(mode==='neutral' || mode==='talking' || mode==='sleeping'){
+        PET.setVisible('beakUpper', true);
+        PET.setVisible('beakLower', true);
+      } else if(mode==='happy'){
+        PET.setVisible('mouthSmile', true);
+      } else if(mode==='sad'){
+        PET.setVisible('mouthSad', true);
+      }
+    }
+  };
+
+  var visorController = {
+    flipped: false,
+    toggle: function(){
+      this.flipped = !this.flipped;
+      var el = PET.parts['visor'] ? PET.parts['visor'].el : null;
+      if(el) el.classList.toggle('visor-flip', this.flipped);
+      return this.flipped;
+    },
+    reset: function(){
+      this.flipped = false;
+      var el = PET.parts['visor'] ? PET.parts['visor'].el : null;
+      if(el) el.classList.remove('visor-flip');
+    }
+  };
+
+  var emotionController = {
+    _timers: {},
+    _map: { blush:['blushLeft','blushRight'], tear:['tear'], sweat:['sweat'], heart:['heartEffect'], zzz:['zzz'] },
+    show: function(effect, ms){
+      var names = this._map[effect];
+      if(!names) return;
+      if(this._timers[effect]) clearTimeout(this._timers[effect]);
+      var self = this;
+      for(var i=0;i<names.length;i++){
+        PET.setVisible(names[i], true);
+        var el = PET.parts[names[i]] ? PET.parts[names[i]].el : null;
+        if(el && effect==='heart'){ el.classList.remove('fx'); void el.offsetWidth; el.classList.add('fx'); }
+      }
+      if(ms){
+        this._timers[effect] = setTimeout(function(){
+          self.hide(effect);
+        }, ms);
+      }
+    },
+    hide: function(effect){
+      var names = this._map[effect];
+      if(!names) return;
+      if(this._timers[effect]){ clearTimeout(this._timers[effect]); this._timers[effect] = null; }
+      for(var i=0;i<names.length;i++) PET.setVisible(names[i], false);
+    },
+    reset: function(){
+      var self = this;
+      ['blush','tear','sweat','heart'].forEach(function(e){
+        if(self._timers[e]){ clearTimeout(self._timers[e]); self._timers[e] = null; }
+        var names = self._map[e];
+        for(var i=0;i<names.length;i++) PET.setVisible(names[i], false);
+      });
+    }
+  };
+
+  var PET = {
+    parts: {},
+    state: 'idle',
+    _emoTimer: null,
+    init: function(){
+      var root = document.getElementById('charRoot');
+      if(!root) return;
+      root.innerHTML = '';
+      this.parts = {};
+      var names = Object.keys(PENGUIN_LAYOUT);
+      names.sort(function(a,b){ return PENGUIN_LAYOUT[a].zIndex - PENGUIN_LAYOUT[b].zIndex; });
+      var self = this, reports = [];
+      var tasks = names.map(function(name){
+        var cfg = PENGUIN_LAYOUT[name];
+        var div = document.createElement('div');
+        div.className = 'part';
+        div.dataset.part = name;
+        div.style.left = cfg.x + 'px';
+        div.style.top = cfg.y + 'px';
+        div.style.width = cfg.width + 'px';
+        div.style.height = cfg.height + 'px';
+        div.style.zIndex = cfg.zIndex;
+        if(cfg.mirrorX) div.style.transform = 'scaleX(-1)';
+        root.appendChild(div);
+        var img = document.createElement('img');
+        div.appendChild(img);
+        self.parts[name] = { cfg:cfg, el:div, img:img, info:null };
+        return loadAndTrimImage('assets/penguin/' + cfg.src)
+          .then(function(res){
+            self.parts[name].info = res;
+            if(!res.empty && res.canvas){
+              img.src = res.canvas.toDataURL('image/png');
+              reports.push({ name:name, src:cfg.src, orig:res.origW+'x'+res.origH, trimmed:res.trimmedW+'x'+res.trimmedH, box:cfg.width+'x'+cfg.height+' @('+cfg.x+','+cfg.y+')', status:'OK' });
+            } else if(res.degraded){
+              img.src = res.src;
+              reports.push({ name:name, src:cfg.src, orig:res.origW+'x'+res.origH, trimmed:'未裁剪(canvas受限)', box:cfg.width+'x'+cfg.height+' @('+cfg.x+','+cfg.y+')', status:'DEGRADED' });
+            } else {
+              reports.push({ name:name, src:cfg.src, orig:res.origW+'x'+res.origH, trimmed:'EMPTY', box:'-', status:'EMPTY' });
+            }
+          })
+          .catch(function(){
+            reports.push({ name:name, src:cfg.src, orig:'-', trimmed:'-', box:'-', status:'FAIL' });
+          });
+      });
+      Promise.all(tasks).then(function(){
+        console.log('[penguin] asset self-check:');
+        console.table(reports);
+        var fails = reports.filter(function(r){ return r.status==='FAIL' || r.status==='EMPTY'; });
+        if(fails.length) showAssetError(fails);
+        if(window.location.protocol === 'file:'){
+          var w = document.createElement('div');
+          w.style.cssText = 'position:fixed;top:0;left:0;right:0;background:#8a6d1a;color:#fff;padding:10px 16px;font-size:13px;z-index:998;text-align:center';
+          w.textContent = '检测到以文件方式直接打开：浏览器限制 Canvas 裁剪，企鹅以未裁剪模式显示。建议通过 http://127.0.0.1:8765/ 访问获得最佳效果。';
+          document.body.appendChild(w);
+          setTimeout(function(){ w.style.transition='opacity .8s'; w.style.opacity='0'; setTimeout(function(){ if(w.parentNode) w.parentNode.removeChild(w); }, 900); }, 6000);
+        }
+        PET.applyState('idle');
+        PET.armIdle();
+        scheduleBlink();
+        interactionController.init();
+        runSelfTest();
+      });
+    },
+    setVisible: function(name, on){
+      var p = this.parts[name];
+      if(p) p.el.style.display = on ? 'flex' : 'none';
+    },
+    applyState: function(s){
+      this.state = s;
+      var stage = document.getElementById('petStage');
+      if(stage){
+        stage.className = 'pet-stage st-' + s;
+        var bs = stage.querySelectorAll('.part.blinking');
+        for(var i=0;i<bs.length;i++) bs[i].classList.remove('blinking');
+      }
+      var mouth = 'neutral';
+      if(s==='talking') mouth = 'talking';
+      else if(s==='happy') mouth = 'happy';
+      else if(s==='sad') mouth = 'sad';
+      else if(s==='sleeping') mouth = 'sleeping';
+      mouthController.setMode(mouth);
+      emotionController.reset();
+      if(s==='happy') emotionController.show('heart', 2600);
+      else if(s==='sad') emotionController.show('tear', 2400);
+      else if(s==='shy') emotionController.show('blush', 2400);
+      else if(s==='nervous') emotionController.show('sweat', 1100);
+      else if(s==='sleeping') emotionController.show('zzz', 0);
+      this.updatePill(s);
+    },
+    setState: function(state){
+      var s = petStateMachine.enter(state);
+      this.applyState(s);
+      return s;
+    },
+    playEmotion: function(emo){
+      var s = petStateMachine.emotion(emo, 2400);
+      if(s) this.applyState(emo);
+    },
+    playAction: function(action){
+      var map = { happy:'happy', shy:'shy', sad:'sad', nervous:'nervous', wave:'shy', angry:'sad', dodge:'shy' };
+      this.playEmotion(map[action] || 'happy');
+    },
+    resetToIdle: function(){ this.setState('idle'); },
+    showEffect: function(effect, ms){
+      emotionController.show(effect, ms || 1600);
+    },
+    setMouthMode: function(mode){ mouthController.setMode(mode); },
+    updatePill: function(s){
+      var pill = document.getElementById('statusPill');
+      if(!pill) return;
+      var map = { idle:'待机', listening:'在听', thinking:'思考中', talking:'说话中', happy:'开心', shy:'害羞', sad:'委屈', nervous:'委屈', sleeping:'睡觉', dragging:'待机' };
+      var q = pill.querySelector('.pill-text');
+      if(q) q.textContent = map[s] || '待机';
+      pill.className = 'status-pill ' + s;
+    },
+    setStatusText: function(txt){
+      var el = document.getElementById('statusTxt');
+      if(el && txt) el.textContent = txt;
+      if(!txt){
+        var s = this.state;
+        var map = { idle:'摸摸头、戳戳肚子，和我说说话吧', listening:'正在听你说…', thinking:'正在思考…', talking:'正在说话…', sleeping:'睡着了，点一下叫醒它' };
+        if(el) el.textContent = map[s] || '';
+      }
+    },
+    noteActivity: function(){
+      if(this.state==='sleeping'){ this.wakeUp(); }
+      this.armIdle();
+    },
+    armIdle: function(){
+      var self = this;
+      clearTimeout(this._idle1); clearTimeout(this._idle2);
+      this._idle1 = setTimeout(function(){
+        if(self.state==='idle') self.lookAround();
+        self._idle2 = setTimeout(function(){
+          if(petStateMachine.PRIORITY[self.state] <= petStateMachine.PRIORITY.idle){
+            self.setState('sleeping');
+          }
+        }, 45000);
+      }, 45000);
+    },
+    lookAround: function(){
+      var dir = Math.random() > 0.5 ? 'l' : 'r';
+      var el = this.parts['eyeLeft'] ? this.parts['eyeLeft'].el : null;
+      if(el){
+        el.classList.add('eye-look-' + dir);
+        if(this.parts['eyeRight']) this.parts['eyeRight'].el.classList.add('eye-look-' + dir);
+      }
+      var root = document.getElementById('charRoot');
+      if(root) root.classList.add('tilt-' + (dir==='l'?'r':'l'));
+      var self = this;
+      setTimeout(function(){
+        if(el){
+          el.classList.remove('eye-look-l','eye-look-r');
+          if(self.parts['eyeRight']) self.parts['eyeRight'].el.classList.remove('eye-look-l','eye-look-r');
+        }
+        if(root) root.classList.remove('tilt-l','tilt-r');
+      }, 1300);
+    },
+    wakeUp: function(){
+      emotionController.hide('zzz');
+      var root = document.getElementById('charRoot');
+      if(root){ root.classList.remove('wake'); void root.offsetWidth; root.classList.add('wake'); setTimeout(function(){ root.classList.remove('wake'); }, 600); }
+      this.setState('idle');
+      this.armIdle();
+    }
+  };
+
+  var interactionController = {
+    ZONES: {
+      visorZone:   {x:[.42,.89], y:[.20,.39]},
+      headZone:    {x:[.22,.78], y:[.04,.42]},
+      faceZone:    {x:[.25,.75], y:[.18,.50]},
+      scarfZone:   {x:[.18,.82], y:[.46,.67]},
+      bellyZone:   {x:[.27,.73], y:[.50,.84]},
+      wholePetZone:{x:[.10,.90], y:[.03,.91]}
+    },
+    debug: false,
+    pointer: null,
+    stroke: null,
+    strokeCount: 0,
+    strokeTimer: null,
+    pokeTimes: [],
+    drag: null,
+    lastDx: 0,
+    lastComedy: '',
+    init: function(){
+      this.debug = (window.location.search.indexOf('debug') >= 0) || (window.location.hash.indexOf('debug') >= 0);
+      var stage = document.getElementById('petStage');
+      if(!stage) return;
+      stage.addEventListener('pointerdown', this.onDown.bind(this));
+      window.addEventListener('pointermove', this.onMove.bind(this));
+      window.addEventListener('pointerup', this.onUp.bind(this));
+      stage.addEventListener('dblclick', this.onDbl.bind(this));
+      if(this.debug) this.buildDebugZones(stage);
+    },
+    stagePos: function(e){
+      var r = document.getElementById('petStage').getBoundingClientRect();
+      if(!r.width || !r.height) return {x:0,y:0};
+      return { x: (e.clientX - r.left) / r.width * 500, y: (e.clientY - r.top) / r.height * 620 };
+    },
+    zoneAt: function(x, y){
+      var names = ['visorZone','headZone','faceZone','scarfZone','bellyZone','wholePetZone'];
+      for(var i=0;i<names.length;i++){
+        var z = this.ZONES[names[i]];
+        if(x >= z.x[0]*500 && x <= z.x[1]*500 && y >= z.y[0]*620 && y <= z.y[1]*620) return names[i];
+      }
+      return null;
+    },
+    onDown: function(e){
+      PET.noteActivity();
+      var p = this.stagePos(e);
+      var zone = this.zoneAt(p.x, p.y);
+      this.pointer = { x:p.x, y:p.y, t:Date.now(), zone:zone, moved:false };
+      if(zone==='headZone'){ this.stroke = { x:p.x, t:Date.now() }; }
+      else if(zone==='bellyZone'){ this.poke(); }
+      else if(zone==='visorZone'){ visorController.toggle(); }
+      else if(zone==='scarfZone'){ this.scarfGlow(); }
+      if(zone) petStateMachine.enter('dragging');
+    },
+    onMove: function(e){
+      if(!this.pointer) return;
+      var p = this.stagePos(e);
+      var dx = p.x - this.pointer.x, dy = p.y - this.pointer.y;
+      var dist = Math.sqrt(dx*dx + dy*dy);
+      if(dist > 6) this.pointer.moved = true;
+      if(this.stroke){
+        var sdx = p.x - this.stroke.x;
+        var dt = Date.now() - this.stroke.t;
+        if(Math.abs(sdx) > 45 && dt > 150){
+          this.doStroke(sdx > 0 ? 'r' : 'l');
+          this.stroke = null;
+        }
+      }
+      if(this.pointer.moved && this.pointer.zone){
+        var ratio = Math.max(-1, Math.min(1, dx / 140));
+        var rot = ratio * 8, sx = 1 - Math.abs(ratio) * 0.08, sk = ratio * 2;
+        var root = document.getElementById('charRoot');
+        if(root){
+          root.classList.add('dragging');
+          root.style.transform = 'rotate(' + rot.toFixed(2) + 'deg) scaleX(' + sx.toFixed(3) + ') skewY(' + sk.toFixed(2) + 'deg)';
+        }
+        this.drag = { ratio: ratio, fast: Math.abs(dx - this.lastDx) > 26 };
+        this.lastDx = dx;
+      }
+    },
+    onUp: function(){
+      if(this.pointer && this.pointer.moved && this.pointer.zone){
+        var root = document.getElementById('charRoot');
+        if(root){
+          root.classList.remove('dragging');
+          root.style.transform = '';
+        }
+        if(this.drag && (Math.abs(this.drag.ratio) > 0.85 || this.drag.fast)){
+          emotionController.show('sweat', 800);
+          if(root){ root.classList.add('poke-nervous'); setTimeout(function(){ root.classList.remove('poke-nervous'); }, 500); }
+          PET.setStatusText('有点晕啦');
+          setTimeout(function(){ PET.setStatusText(''); }, 800);
+        }
+        this.drag = null;
+        var back = petStateMachine.release();
+        PET.applyState(back);
+      }
+      this.pointer = null;
+      this.stroke = null;
+      this.lastDx = 0;
+    },
+    doStroke: function(dir){
+      var self = this;
+      var root = document.getElementById('charRoot');
+      if(root){
+        root.classList.remove('tilt-l','tilt-r','bounce');
+        void root.offsetWidth;
+        root.classList.add(dir==='l' ? 'tilt-l' : 'tilt-r');
+      }
+      var el = PET.parts['eyeLeft'] ? PET.parts['eyeLeft'].el : null;
+      if(el){ el.style.transform = 'scaleY(0.82)'; setTimeout(function(){ el.style.transform = ''; }, 520); }
+      emotionController.show('blush', 1800);
+      setTimeout(function(){
+        if(root){ root.classList.add('bounce'); root.classList.remove('tilt-l','tilt-r'); setTimeout(function(){ root.classList.remove('bounce'); }, 600); }
+      }, 320);
+      this.strokeCount++;
+      clearTimeout(this.strokeTimer);
+      this.strokeTimer = setTimeout(function(){ self.strokeCount = 0; }, 2000);
+      if(this.strokeCount >= 2){
+        this.strokeCount = 0;
+        PET.playEmotion('happy');
+        PET.setStatusText('好开心呀～');
+        setTimeout(function(){ PET.setStatusText(''); }, 1500);
+      }
+    },
+    poke: function(){
+      var root = document.getElementById('charRoot');
+      if(root){
+        root.classList.remove('poke');
+        void root.offsetWidth;
+        root.classList.add('poke');
+        setTimeout(function(){ root.classList.remove('poke'); }, 350);
+      }
+      var now = Date.now();
+      this.pokeTimes = this.pokeTimes.filter(function(t){ return now - t < 2000; });
+      this.pokeTimes.push(now);
+      if(this.pokeTimes.length >= 3){
+        this.pokeTimes = [];
+        PET.playEmotion('nervous');
+        PET.setStatusText('被戳得有点紧张');
+        setTimeout(function(){ PET.setStatusText(''); }, 1200);
+      }
+    },
+    scarfGlow: function(){
+      var el = PET.parts['scarf'] ? PET.parts['scarf'].el : null;
+      if(el){
+        el.classList.remove('scarf-sweep');
+        void el.offsetWidth;
+        el.classList.add('scarf-sweep');
+        setTimeout(function(){ el.classList.remove('scarf-sweep'); }, 950);
+      }
+      var root = document.getElementById('charRoot');
+      if(root){
+        root.classList.remove('chest-up');
+        void root.offsetWidth;
+        root.classList.add('chest-up');
+        setTimeout(function(){ root.classList.remove('chest-up'); }, 950);
+      }
+      emotionController.show('heart', 900);
+      PET.setStatusText('能量满满');
+      setTimeout(function(){ PET.setStatusText(''); }, 900);
+    },
+    onDbl: function(){
+      PET.noteActivity();
+      this.doComedy();
+    },
+    doComedy: function(){
+      var acts = ['jump','spin','laugh','sway','dodge','puff'];
+      var pick;
+      var guard = 0;
+      do { pick = acts[Math.floor(Math.random() * acts.length)]; guard++; } while(pick === this.lastComedy && guard < 10);
+      this.lastComedy = pick;
+      var root = document.getElementById('charRoot');
+      if(root){
+        root.classList.remove('fx-jump2','fx-spin','fx-laugh','fx-sway','fx-dodge','fx-puff');
+        void root.offsetWidth;
+        root.classList.add('fx-' + pick);
+        (function(cls){ setTimeout(function(){ root.classList.remove(cls); }, 950); })( 'fx-' + pick );
+      }
+      switch(pick){
+        case 'jump':
+          PET.playEmotion('happy');
+          break;
+        case 'spin':
+          emotionController.show('sweat', 900);
+          PET.setStatusText('转晕啦～');
+          setTimeout(function(){ PET.setStatusText(''); }, 1200);
+          break;
+        case 'laugh':
+          PET.playEmotion('happy');
+          emotionController.show('heart', 1200);
+          break;
+        case 'sway':
+          PET.playEmotion('shy');
+          break;
+        case 'dodge':
+          PET.setStatusText('嘿嘿，躲开啦！');
+          setTimeout(function(){ PET.setStatusText(''); }, 1000);
+          break;
+        case 'puff':
+          PET.playEmotion('sad');
+          emotionController.show('blush', 1200);
+          PET.setStatusText('哼！气鼓鼓');
+          setTimeout(function(){ PET.setStatusText(''); }, 1200);
+          break;
+      }
+    },
+    buildDebugZones: function(stage){
+      var names = Object.keys(this.ZONES);
+      for(var i=0;i<names.length;i++){
+        var z = this.ZONES[names[i]], d = document.createElement('div');
+        d.className = 'zone-debug on';
+        d.dataset.name = names[i];
+        d.style.left = (z.x[0]*500) + 'px';
+        d.style.top = (z.y[0]*620) + 'px';
+        d.style.width = ((z.x[1]-z.x[0])*500) + 'px';
+        d.style.height = ((z.y[1]-z.y[0])*620) + 'px';
+        stage.appendChild(d);
+      }
+      console.log('[penguin] debug 热区已显示（zone-debug）');
+    }
+  };
+
+  var blinkTimer = null;
+  function scheduleBlink(){
+    clearTimeout(blinkTimer);
+    blinkTimer = setTimeout(function(){
+      if(PET.state === 'idle' || PET.state === 'sleeping' || PET.state === 'dragging'){
+        var es = document.querySelectorAll('.part[data-part="eyeLeft"], .part[data-part="eyeRight"]');
+        for(var i=0;i<es.length;i++) es[i].classList.add('blinking');
+        setTimeout(function(){
+          for(var i=0;i<es.length;i++) es[i].classList.remove('blinking');
+          scheduleBlink();
+        }, 210);
+      } else { scheduleBlink(); }
+    }, 2800 + Math.random() * 2700);
+  }
+
+  function fitStage(){
+    var stage = document.getElementById('petStage');
+    if(!stage) return;
+    var availW = Math.max(260, window.innerWidth - 20);
+    var availH = Math.max(220, Math.min(window.innerHeight * 0.42, 500));
+    var s = Math.min(availW / 500, availH / 620, 1);
+    s = Math.max(0.22, s);
+    stage.style.transform = 'scale(' + s.toFixed(4) + ')';
+    var wrap = document.getElementById('petWrap');
+    if(wrap) wrap.style.height = Math.round(620*s) + 'px';
+  }
+  window.addEventListener('resize', fitStage);
+  window.addEventListener('orientationchange', function(){ setTimeout(fitStage, 300); });
+  fitStage();
+
+  setTimeout(function(){
+    var tip = document.getElementById('firstTip');
+    if(tip){
+      tip.classList.add('show');
+      setTimeout(function(){ tip.classList.remove('show'); }, 4200);
+    }
+  }, 900);
+
+  function guessEmotion(text){
+    if(!text) return 'idle';
+    var happy = /哈哈|开心|喜欢|爱|棒|厉害|太好|高兴|嘿嘿|可爱|赞|鼓掌|抱抱/i;
+    var sad = /难过|伤心|抱歉|对不起|遗憾|哭|别难过|心疼|失望/i;
+    var shy = /害羞|脸红|不好意思|哎呀/i;
+    if(happy.test(text)) return 'happy';
+    if(sad.test(text)) return 'sad';
+    if(shy.test(text)) return 'shy';
+    return 'idle';
+  }
+
+  function runSelfTest(){
+    var results = [];
+    function check(name, ok){ results.push((ok?'PASS':'FAIL') + ' | ' + name); }
+    function layer(name){ return PET.parts[name] ? PET.parts[name].el.style.display : 'none'; }
+    mouthController.setMode('neutral');
+    check('neutral: beakUpper 显示', layer('beakUpper')==='flex');
+    check('neutral: beakLower 显示', layer('beakLower')==='flex');
+    check('neutral: mouthSmile 隐藏', layer('mouthSmile')==='none');
+    check('neutral: mouthSad 隐藏', layer('mouthSad')==='none');
+    mouthController.setMode('talking');
+    check('talking: 仅 beakUpper/beakLower', layer('beakUpper')==='flex' && layer('beakLower')==='flex' && layer('mouthSmile')==='none' && layer('mouthSad')==='none');
+    mouthController.setMode('happy');
+    check('happy: 仅 mouthSmile', layer('mouthSmile')==='flex' && layer('beakUpper')==='none' && layer('beakLower')==='none' && layer('mouthSad')==='none');
+    mouthController.setMode('sad');
+    check('sad: 仅 mouthSad', layer('mouthSad')==='flex' && layer('beakUpper')==='none' && layer('beakLower')==='none' && layer('mouthSmile')==='none');
+    mouthController.setMode('sleeping');
+    check('sleeping: beak 对显示', layer('beakUpper')==='flex' && layer('beakLower')==='flex');
+    mouthController.setMode('neutral');
+    check('互斥: 任意时刻仅一套嘴型', [layer('beakUpper'),layer('beakLower'),layer('mouthSmile'),layer('mouthSad')].filter(function(v){return v==='flex';}).length === 2);
+    var zone = interactionController.zoneAt(250, 300);
+    check('热区: bellyZone 命中 (250,300)', zone==='bellyZone');
+    zone = interactionController.zoneAt(320, 200);
+    check('热区: visorZone 命中 (320,200)', zone==='visorZone');
+    check('状态机: thinking 优先级高于 idle', petStateMachine.PRIORITY.thinking > petStateMachine.PRIORITY.idle);
+    check('状态机: dragging 最高', petStateMachine.PRIORITY.dragging === 10);
+    var cfg0 = loadCfg();
+    var sp = buildSystemPrompt(cfg0, '为什么AI数据中心估值不像电力公司');
+    check('提示词拼接: 含共享底座', sp.indexOf('深海小元') >= 0);
+    check('提示词拼接: 含人格段落', sp.indexOf('【当前人格') >= 0);
+    check('提示词拼接: 含深度策略', sp.indexOf('【回答深度') >= 0);
+    check('提示词拼接: 含工具策略', sp.indexOf('【实时信息') >= 0);
+    var pr1 = parseAIResponse('{"reply":"好问题","persona":"scholar","depth":"deep","emotion":"curious","animation":"visor_glow","effect":"none"}', 'balanced');
+    check('JSON解析: reply 提取', pr1.reply === '好问题');
+    check('JSON解析: persona 提取', pr1.persona === 'scholar');
+    check('JSON解析: depth 提取', pr1.depth === 'deep');
+    var pr2 = parseAIResponse('这不是JSON，是普通文本回答', 'sharp');
+    check('JSON解析失败: 整段作 reply', pr2.reply === '这不是JSON，是普通文本回答');
+    check('JSON解析失败: 保留当前人格', pr2.persona === 'sharp');
+    check('深度判断: 深入分析词→deep', detectDepth('帮我深入分析一下底层逻辑') === 'deep');
+    check('深度判断: 寒暄→brief', detectDepth('哈哈') === 'brief');
+    check('深度判断: 普通→normal', detectDepth('今天股票怎么样') === 'normal');
+    var tw = toolRouter('深圳今天会不会下雨', cfg0);
+    check('工具路由: 天气意图识别', tw && tw.intents.indexOf('weather') >= 0);
+    check('工具路由: 无API明确说明', tw && tw.available === false && tw.note.indexOf('无法获取') >= 0);
+    check('工具路由: 非工具问题返回null', toolRouter('讲个笑话', cfg0) === null);
+    console.log('[penguin] self-test:', results.join(' | '));
+    var fails = results.filter(function(r){ return r.indexOf('FAIL')===0; });
+    if(fails.length) console.log('[penguin] self-test FAILED: ' + fails.length);
+    else console.log('[penguin] self-test ALL PASS (' + results.length + ')');
+    PET.setMouthMode('neutral');
+  }
+
+
+  var micBtn = document.getElementById('micBtn');
+  var petImg = document.getElementById('petStage');
+  var stopFab = document.getElementById('stopFab');
+  var ctxMenu = document.getElementById('ctxMenu');
+  var ctxList = document.getElementById('ctxList');
+
+  function spawnSparks(x, y){
+    var rect = petWrap.getBoundingClientRect();
+    var px = x - rect.left, py = y - rect.top;
+    var n = 9;
+    for(var i=0;i<n;i++){
+      var sp = document.createElement('span');
+      sp.className = 'spark';
+      sp.style.left = px + 'px';
+      sp.style.top = py + 'px';
+      var a = (Math.PI*2)*(i/n) + (Math.random()-0.5)*0.6;
+      var d = 36 + Math.random()*54;
+      sp.style.setProperty('--dx', Math.cos(a)*d + 'px');
+      sp.style.setProperty('--dy', Math.sin(a)*d - 22 + 'px');
+      petWrap.appendChild(sp);
+      setTimeout(function(){ if(sp.parentNode) sp.parentNode.removeChild(sp); }, 1200);
+    }
+  }
+  var ACT_LINES = {
+    pet: '呼噜呼噜～被你摸得好舒服～',
+    poke: '哇！吓我一跳！别戳我啦～',
+    tickle: '哈哈哈～别逗我啦，我笑得停不下来！'
+  };
+  function spawnHearts(n){
+    for(var i=0;i<n;i++){
+      var h = document.createElement('span');
+      h.className = 'heart';
+      h.style.left = (78 + Math.random()*64) + 'px';
+      h.style.top = (56 + Math.random()*44) + 'px';
+      petWrap.appendChild(h);
+      setTimeout(function(){ if(h.parentNode) h.parentNode.removeChild(h); }, 1150);
+    }
+  }
+  function playAction(k){
+    PET.noteActivity();
+    if(k==='pet'){ interactionController.doStroke(Math.random()>0.5?'l':'r'); spawnHearts(3); addBubble('pet', ACT_LINES.pet); }
+    else if(k==='poke'){ interactionController.poke(); addBubble('pet', ACT_LINES.poke); }
+    else if(k==='tickle'){ interactionController.doComedy(); }
+  }
+  document.querySelectorAll('.act').forEach(function(btn){
+    btn.addEventListener('pointerdown', function(e){
+      e.preventDefault();
+      var k = btn.dataset.act;
+      playAction(k);
+      if(k === 'tickle'){
+        var timer = setInterval(function(){ playAction('tickle'); }, 1300);
+        var stop = function(){
+          clearInterval(timer);
+          btn.removeEventListener('pointerup', stop);
+          btn.removeEventListener('pointerleave', stop);
+          btn.removeEventListener('pointercancel', stop);
+        };
+        btn.addEventListener('pointerup', stop);
+        btn.addEventListener('pointerleave', stop);
+        btn.addEventListener('pointercancel', stop);
+      }
+    });
+  });
+
+  function openCtxMenu(x, y){
+    ctxList.innerHTML = '';
+    var cfg = loadCfg();
+    var items = [['browser','浏览器语音']].concat(EDGE_VOICES.map(function(v){return [v[0], v[1]];}));
+    for(var i=0;i<items.length;i++){
+      var v = items[i][0], n = items[i][1];
+      var cur = (v==='browser' && cfg.ttsEngine!=='edge') || (v!=='browser' && cfg.ttsEngine==='edge' && cfg.edgeVoice===v);
+      var d = document.createElement('div');
+      d.className = 'ctx-item';
+      d.innerHTML = '<span>'+n+'</span>' + (cur ? '<span class="check">✓</span>' : '');
+      (function(vv){
+        d.addEventListener('click', function(ev){
+          ev.stopPropagation();
+          var c = loadCfg();
+          if(vv==='browser'){ c.ttsEngine='browser'; }
+          else { c.ttsEngine='edge'; c.edgeVoice=vv; }
+          saveCfg(c); fillSettings();
+          var name = vv==='browser' ? '浏览器语音' : (EDGE_VOICES.filter(function(x){return x[0]===vv;})[0]||[vv,vv])[1];
+          showToast('语音已切换：'+name);
+          closeCtxMenu();
+        });
+      })(v);
+      ctxList.appendChild(d);
+    }
+    ctxMenu.classList.add('show');
+    var rect = ctxMenu.getBoundingClientRect();
+    var px = Math.min(Math.max(8, x), window.innerWidth - rect.width - 8);
+    var py = Math.min(Math.max(8, y), window.innerHeight - rect.height - 8);
+    ctxMenu.style.left = px + 'px';
+    ctxMenu.style.top = py + 'px';
+  }
+  function closeCtxMenu(){ ctxMenu.classList.remove('show'); }
+
+  petImg.addEventListener('click', function(e){
+    PET.noteActivity();
+    spawnSparks(e.clientX, e.clientY);
+    var root = document.getElementById('charRoot');
+    if(root){
+      root.classList.remove('bounce');
+      void root.offsetWidth;
+      root.classList.add('bounce');
+      setTimeout(function(){ root.classList.remove('bounce'); }, 600);
+    }
+    sheet.classList.remove('open');
+    closeCtxMenu();
+  });
+  petImg.addEventListener('contextmenu', function(e){
+    e.preventDefault();
+    openCtxMenu(e.clientX, e.clientY);
+  });
+  document.addEventListener('click', function(e){
+    if(ctxMenu.classList.contains('show') && !ctxMenu.contains(e.target)) closeCtxMenu();
+  });
+  document.addEventListener('contextmenu', function(e){
+    if(e.target !== petImg) closeCtxMenu();
+  });
+  stopFab.addEventListener('click', function(){ stopAll(); });
+  micBtn.addEventListener('click', function(){
+    if(autoMode) stopAll(); else startAll();
+    sheet.classList.remove('open');
+  });
+
+  fillSettings();
+  probeEdge();
+  fillEdgeVoices();
+  PET.init();
+  var savedVoice = loadCfg().voice;
+  if(savedVoice) chosenVoice = {name:savedVoice};
+
+  if(!SR && !('speechSynthesis' in window)){
+    statusTxt.textContent = '当前浏览器不支持语音功能，请用 Chrome / Edge 打开';
+  }
+})();
+</script>
+</body>
+</html>

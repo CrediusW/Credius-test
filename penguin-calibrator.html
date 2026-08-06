@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>企鹅校准器 · 小元分层布局工具</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#0e0a20;--panel:#171233;--card:#201a3e;--border:rgba(255,255,255,.12);
+  --text:#f4f1ff;--muted:#a79fd0;--accent:#7f77dd;--accent2:#5fd0ff;--ok:#5bd6a3;
+}
+body{font-family:"PingFang SC","Microsoft YaHei",system-ui,sans-serif;background:radial-gradient(1200px 800px at 70% -10%,#2a2350 0%,#171232 45%,#0d0a1f 100%);color:var(--text);min-height:100vh;overflow-x:hidden}
+header{display:flex;align-items:center;gap:12px;padding:14px 22px;border-bottom:1px solid var(--border);background:rgba(14,10,32,.6);position:sticky;top:0;z-index:20;backdrop-filter:blur(8px)}
+header h1{font-size:17px;font-weight:600;letter-spacing:.5px;flex:1}
+header h1 small{color:var(--muted);font-weight:400;font-size:12px;margin-left:10px}
+.btn{padding:9px 18px;border-radius:12px;border:1px solid var(--border);background:var(--card);color:var(--text);font-size:13px;cursor:pointer;transition:.2s;font-family:inherit}
+.btn:hover{background:rgba(255,255,255,.1);border-color:var(--accent)}
+.btn.primary{background:linear-gradient(135deg,var(--accent),#534ab7);border:none;font-weight:500}
+.btn.primary:hover{filter:brightness(1.1)}
+.btn.danger{background:rgba(255,120,90,.12);border-color:rgba(255,120,90,.4);color:#ffb3a0}
+.btn.danger:hover{background:rgba(255,120,90,.22)}
+main{display:grid;grid-template-columns:250px 1fr 290px;gap:16px;padding:16px 22px;min-height:calc(100vh - 62px)}
+.panel{background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:14px;overflow:auto}
+.panel h2{font-size:13px;color:var(--muted);font-weight:500;margin-bottom:10px;letter-spacing:.5px;text-transform:uppercase}
+.layer-item{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:10px;cursor:pointer;transition:.15s;font-size:13px;border:1px solid transparent}
+.layer-item:hover{background:rgba(255,255,255,.06)}
+.layer-item.sel{background:rgba(127,119,221,.18);border-color:var(--accent)}
+.layer-item .eye{width:26px;height:26px;border-radius:8px;border:1px solid var(--border);background:rgba(255,255,255,.05);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:11px;color:var(--muted);flex:0 0 auto;transition:.15s}
+.layer-item .eye:hover{border-color:var(--accent)}
+.layer-item .eye.off{opacity:.4;text-decoration:line-through}
+.layer-item .nm{flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.layer-item .zi{font-size:11px;color:var(--muted);min-width:22px;text-align:right}
+.stage-shell{display:flex;align-items:flex-start;justify-content:center;padding-top:10px}
+.stage-wrap{position:relative;width:512px;height:512px;background:#12102a;border:1px solid var(--border);border-radius:18px;overflow:hidden;touch-action:none;user-select:none}
+.stage-wrap::before{content:"";position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.05) 1px,transparent 1px);background-size:32px 32px;pointer-events:none}
+.stage-hint{position:absolute;left:50%;bottom:10px;transform:translateX(-50%);font-size:11px;color:var(--muted);background:rgba(14,10,32,.7);padding:4px 12px;border-radius:99px;pointer-events:none;z-index:50;white-space:nowrap}
+.layer{position:absolute;top:0;left:0;cursor:grab;will-change:transform;max-width:none}
+.layer.drag{cursor:grabbing}
+.layer.sel-outline{outline:2px dashed var(--accent2);outline-offset:-2px;border-radius:6px}
+.field{margin-bottom:12px}
+.field label{display:block;font-size:11px;color:var(--muted);margin-bottom:5px}
+.field .row{display:flex;gap:8px}
+.field input[type=number]{width:100%;background:rgba(255,255,255,.07);border:1px solid var(--border);border-radius:9px;color:var(--text);font-size:13px;padding:7px 9px;outline:none;font-family:inherit}
+.field input:focus{border-color:var(--accent)}
+.field input[type=range]{width:100%;accent-color:var(--accent)}
+.field select{width:100%;background:rgba(255,255,255,.07);border:1px solid var(--border);border-radius:9px;color:var(--text);font-size:13px;padding:7px 9px;outline:none;font-family:inherit}
+.check{display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer;padding:4px 0}
+.check input{accent-color:var(--accent);width:15px;height:15px}
+.no-sel{color:var(--muted);font-size:12px;line-height:1.8;padding-top:6px}
+.no-sel b{color:var(--text);font-weight:500}
+.hintbox{font-size:11px;color:var(--muted);line-height:1.8;margin-top:8px;padding:10px;border:1px dashed var(--border);border-radius:10px}
+.hintbox b{color:var(--accent2);font-weight:500}
+.toast{position:fixed;left:50%;bottom:28px;transform:translateX(-50%) translateY(20px);background:rgba(20,14,40,.96);border:1px solid var(--border);color:var(--text);font-size:13px;padding:11px 20px;border-radius:12px;opacity:0;pointer-events:none;transition:.3s;z-index:99;box-shadow:0 10px 40px rgba(0,0,0,.5)}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.toast.ok{border-color:var(--ok)}
+.toast.err{border-color:#ff6b6b}
+@media (max-width:1180px){main{grid-template-columns:200px 1fr;grid-template-rows:auto auto}.panel-right{grid-column:1/3}.stage-wrap{width:400px;height:400px}}
+</style>
+</head>
+<body>
+<header>
+  <h1>企鹅校准器<small>分层布局 · 拖拽 · 微调 · 保存</small></h1>
+  <a class="btn" href="index.html" target="_blank">打开主站</a>
+  <button class="btn danger" id="resetBtn">恢复默认</button>
+  <button class="btn primary" id="saveBtn">保存布局</button>
+</header>
+
+<main>
+  <aside class="panel">
+    <h2>图层</h2>
+    <div id="layerList"></div>
+  </aside>
+
+  <section class="stage-shell">
+    <div class="stage-wrap" id="stage">
+      <div class="stage-hint">拖拽移动 · 滚轮缩放 · Alt+滚轮旋转 · 方向键微调 · 单击选中</div>
+    </div>
+  </section>
+
+  <aside class="panel panel-right">
+    <h2 id="propTitle">属性</h2>
+    <div id="propPanel">
+      <div class="no-sel">
+        在左侧选择一个图层，或在舞台上单击它。<br><br>
+        <b>操作</b>：拖拽移动位置；滚轮缩放；Alt+滚轮旋转；方向键微调（Shift=大步长）；按住图层时按 F 键镜像。<br><br>
+        <b>保存</b>：所有调整会写入 <span style="color:var(--accent2)">assets/penguin/penguin-layout.json</span>，主站页面启动时自动读取。
+      </div>
+    </div>
+    <div class="hintbox">
+      微调技巧：先选 body 定整体位置 → 依次对 eye / beak / scarf / visor 微调 → 特效层（blush/tear/sweat/heart/zzz）对齐到目标位置。左右镜像层只需调一侧，另一侧自动跟随（同布局数据）。
+    </div>
+  </aside>
+</main>
+
+<div class="toast" id="toast"></div>
+
+<script>
+(function(){
+  "use strict";
+  var LAYOUT_URL = '/layout';
+  var SAVE_URL = '/layout';
+
+  var DEFAULT_LAYOUT = {
+      "stage": {
+        "width": 512,
+        "height": 512,
+        "baseScale": 0.62
+      },
+      "layers": {
+        "shadow": {
+          "src": "shadow.png",
+          "x": 256,
+          "y": 482,
+          "scaleX": 0.35,
+          "scaleY": 0.35,
+          "rotation": 0,
+          "opacity": 1,
+          "zIndex": 1,
+          "visible": true,
+          "transformOrigin": "center",
+          "mirror": false
+        },
+        "body": {
+          "src": "body.png",
+          "x": 256,
+          "y": 292,
+          "scaleX": 0.62,
+          "scaleY": 0.62,
+          "rotation": 0,
+          "opacity": 1,
+          "zIndex": 2,
+          "visible": true,
+          "transformOrigin": "center",
+          "mirror": false
+        },
+        "foot": {
+          "src": "foot.png",
+          "x": 256,
+          "y": 458,
+          "scaleX": 0.3,
+          "scaleY": 0.3,
+          "rotation": 0,
+          "opacity": 1,
+          "zIndex": 3,
+          "visible": true,
+          "transformOrigin": "center",
+          "mirror": false
+        },
+        "wing-left": {
+          "src": "wing.png",
+          "x": 148,
+          "y": 338,
+          "scaleX": 0.25,
+          "scaleY": 0.25,
+          "rotation": 0,
+          "opacity": 1,
+          "zIndex": 4,
+          "visible": false,
+          "transformOrigin": "center",
+          "mirror": true
+        },
+        "wing-right": {
+          "src": "wing.png",
+          "x": 364,
+          "y": 338,
+          "scaleX": 0.25,
+          "scaleY": 0.25,
+          "rotation": 0,
+          "opacity": 1,
+          "zIndex": 4,
+          "visible": false,
+          "transformOrigin": "center",
+          "mirror": false
+        },
+        "wing-raised": {
+          "src": "wing-raised.png",
+          "x": 300,
+          "y": 250,
+          "scaleX": 0.28,
+          "scaleY": 0.28,
+          "rotation": 0,
+          "opacity": 1,
+          "zIndex": 4,
+          "visible": false,
+          "transformOrigin": "center",
+          "mirror": false
+        },
+        "eye-left": {
+          "src": "eye.png",
+          "x": 194,
+          "y": 168,
+          "scaleX": 0.14,
+          "scaleY": 0.14,
+          "rotation": 0,
+          "opacity": 1,
+          "zIndex": 5,
+          "visible": true,
+          "transformOrigin": "center",
+          "mirror": true
+        },
+        "eye-right": {
+          "src": "eye.png",
+          "x": 318,
+          "y": 168,
+          "scaleX": 0.14,
+          "scaleY": 0.14,
+          "rotation": 0,
+          "opacity": 1,
+          "zIndex": 5,
+          "visible": true,
+          "transformOrigin": "center",
+          "mirror": false
+        },
+        "eyelid-left": {
+          "src": "eyelid.png",
+          "x": 194,
+          "y": 168,
+          "scaleX": 0.13,
+          "scaleY": 0.13,
+          "rotation": 0,
+          "opacity": 1,
+          "zIndex": 6,
+          "visible": false,
+          "transformOrigin": "center",
+          "mirror": true
+        },
+        "eyelid-right": {
+          "src": "eyelid.png",
+          "x": 318,
+          "y": 168,
+          "scaleX": 0.13,
+          "scaleY": 0.13,
+          "rotation": 0,
+          "opacity": 1,
+          "zIndex": 6,
+          "visible": false,
+          "transformOrigin": "center",
+          "mirror": false
+        },
+        "beak-upper": {
+          "src": "beak-upper.png",
+          "x": 256,
+          "y": 232,
+          "scaleX": 0.19,
+          "scaleY": 0.19,
+          "rotation": 0,
+          "opacity": 1,
+          "zIndex": 7,
+          "visible": true,
+          "transformOrigin": "center",
+          "mirror": false
+        },
+        "beak-lower": {
+          "src": "beak-lower.png",
+          "x": 256,
+          "y": 240,
+          "scaleX": 0.19,
+          "scaleY": 0.19,
+          "rotation": 0,
+          "opacity": 1,
+          "zIndex": 7,
+          "visible": false,
+          "transformOrigin": "center",
+          "mirror": false
+        },
+        "mouth-smile": {
+          "src": "mouth-smile.png",
+          "x": 256,
+          "y": 242,
+          "scaleX": 0.16,
+          "scaleY": 0.16,
+          "rotation": 0,
+          "opacity": 1,
+          "zIndex": 7,
+          "visible": false,
+          "transformOrigin": "center",
+          "mirror": false
+        },
+        "mouth-sad": {
+          "src": "mouth-sad.png",
+          "x": 256,
+          "y": 244,
+          "scaleX": 0.16,
+          "scaleY": 0.16,
+          "rotation": 0,
+          "opacity": 1,
+          "zIndex": 7,
+          "visible": false,
+          "transformOrigin": "center",
+          "mirror": false
+        },
+        "scarf": {
+          "src": "scarf.png",
+          "x": 256,
+          "y": 270,
+          "scaleX": 0.21,
+          "scaleY": 0.21,
+          "rotation": 0,
+          "opacity": 1,
+          "zIndex": 8,
+          "visible": true,
+          "transformOrigin": "center",
+          "mirror": false
+        },
+        "visor": {
+          "src": "visor.png",
+          "x": 256,
+          "y": 172,
+          "scaleX": 0.13,
+          "scaleY": 0.13,
+          "rotation": 0,
+          "opacity": 1,
+          "zIndex": 9,
+          "visible": true,
+          "transformOrigin": "center",
+          "mirror": false
+        },
+        "blush-left": {
+          "src": "blush.png",
+          "x": 176,
+          "y": 240,
+          "scaleX": 0.15,
+          "scaleY": 0.15,
+          "rotation": 0,
+          "opacity": 1,
+          "zIndex": 10,
+          "visible": false,
+          "transformOrigin": "center",
+          "mirror": true
+        },
+        "blush-right": {
+          "src": "blush.png",
+          "x": 336,
+          "y": 240,
+          "scaleX": 0.15,
+          "scaleY": 0.15,
+          "rotation": 0,
+          "opacity": 1,
+          "zIndex": 10,
+          "visible": false,
+          "transformOrigin": "center",
+          "mirror": false
+        },
+        "tear": {
+          "src": "tear.png",
+          "x": 240,
+          "y": 218,
+          "scaleX": 0.12,
+          "scaleY": 0.12,
+          "rotation": 0,
+          "opacity": 1,
+          "zIndex": 10,
+          "visible": false,
+          "transformOrigin": "center",
+          "mirror": false
+        },
+        "sweat": {
+          "src": "sweat.png",
+          "x": 316,
+          "y": 132,
+          "scaleX": 0.1,
+          "scaleY": 0.1,
+          "rotation": 0,
+          "opacity": 1,
+          "zIndex": 10,
+          "visible": false,
+          "transformOrigin": "center",
+          "mirror": false
+        },
+        "heart-effect": {
+          "src": "heart--effect.png",
+          "x": 256,
+          "y": 128,
+          "scaleX": 0.18,
+          "scaleY": 0.18,
+          "rotation": 0,
+          "opacity": 1,
+          "zIndex": 10,
+          "visible": false,
+          "transformOrigin": "center",
+          "mirror": false
+        },
+        "zzz": {
+          "src": "zzz.png",
+          "x": 330,
+          "y": 82,
+          "scaleX": 0.12,
+          "scaleY": 0.12,
+          "rotation": 0,
+          "opacity": 1,
+          "zIndex": 10,
+          "visible": false,
+          "transformOrigin": "center",
+          "mirror": false
+        }
+      }
+    };
+
+  var layout = null, selected = null, els = {}, drag = null;
+  var stage = document.getElementById('stage');
+  var layerList = document.getElementById('layerList');
+  var propPanel = document.getElementById('propPanel');
+  var propTitle = document.getElementById('propTitle');
+
+  function toast(msg, type){
+    var t = document.getElementById('toast');
+    t.textContent = msg;
+    t.className = 'toast show ' + (type||'');
+    clearTimeout(toast._t);
+    toast._t = setTimeout(function(){ t.className = 'toast'; }, 2600);
+  }
+
+  function buildStage(){
+    Object.keys(els).forEach(function(k){
+      if(els[k].el.parentNode) els[k].el.parentNode.removeChild(els[k].el);
+    });
+    els = {};
+    var names = Object.keys(layout.layers);
+    names.sort(function(a,b){ return layout.layers[a].zIndex - layout.layers[b].zIndex; });
+    names.forEach(function(name){
+      var c = layout.layers[name];
+      var img = document.createElement('img');
+      img.className = 'layer';
+      img.src = 'assets/penguin/' + c.src;
+      img.dataset.name = name;
+      img.draggable = false;
+      stage.appendChild(img);
+      els[name] = { el: img };
+      applyLayer(name);
+    });
+    buildList();
+  }
+
+  function applyLayer(name){
+    var c = layout.layers[name], el = els[name].el;
+    var sx = c.scaleX, sy = c.scaleY;
+    if(c.mirror) sx = -Math.abs(sx);
+    el.style.transform = 'translate(' + c.x + 'px,' + c.y + 'px) rotate(' + c.rotation + 'deg) scale(' + sx + ',' + sy + ')';
+    el.style.zIndex = c.zIndex;
+    el.style.opacity = c.visible ? c.opacity : 0;
+    el.style.pointerEvents = c.visible ? 'auto' : 'none';
+    el.style.transformOrigin = c.transformOrigin || 'center';
+    el.classList.toggle('sel-outline', name === selected);
+  }
+
+  function buildList(){
+    layerList.innerHTML = '';
+    var names = Object.keys(layout.layers);
+    names.sort(function(a,b){ return layout.layers[a].zIndex - layout.layers[b].zIndex; });
+    names.forEach(function(name){
+      var c = layout.layers[name];
+      var d = document.createElement('div');
+      d.className = 'layer-item' + (name===selected ? ' sel' : '');
+      var eye = document.createElement('span');
+      eye.className = 'eye' + (c.visible ? '' : ' off');
+      eye.textContent = c.visible ? '◉' : '○';
+      var nm = document.createElement('span');
+      nm.className = 'nm'; nm.textContent = name;
+      var zi = document.createElement('span');
+      zi.className = 'zi'; zi.textContent = c.zIndex;
+      d.appendChild(eye); d.appendChild(nm); d.appendChild(zi);
+      eye.addEventListener('click', function(ev){
+        ev.stopPropagation();
+        c.visible = !c.visible;
+        applyLayer(name); buildList(); renderPanel();
+      });
+      d.addEventListener('click', function(){ selectLayer(name); });
+      layerList.appendChild(d);
+    });
+  }
+
+  function selectLayer(name){
+    selected = name;
+    Object.keys(els).forEach(function(k){ els[k].el.classList.toggle('sel-outline', k===name); });
+    buildList();
+    renderPanel();
+  }
+  function deselect(){
+    selected = null;
+    Object.keys(els).forEach(function(k){ els[k].el.classList.remove('sel-outline'); });
+    buildList();
+    renderPanel();
+  }
+
+  function numField(label, key, step, min, max){
+    var d = document.createElement('div');
+    d.className = 'field';
+    var l = document.createElement('label'); l.textContent = label;
+    var inp = document.createElement('input');
+    inp.type = 'number'; inp.step = step || 1;
+    if(min!==undefined) inp.min = min;
+    if(max!==undefined) inp.max = max;
+    inp.value = layout.layers[selected][key];
+    inp.addEventListener('input', function(){
+      var v = parseFloat(inp.value);
+      if(isNaN(v)) return;
+      if(key==='scaleX'){ layout.layers[selected].scaleX = Math.abs(v) * (layout.layers[selected].mirror ? -1 : 1); if(layout.layers[selected].mirror) layout.layers[selected].scaleX = -Math.abs(v); else layout.layers[selected].scaleX = Math.abs(v); }
+      else layout.layers[selected][key] = v;
+      applyLayer(selected);
+    });
+    d.appendChild(l); d.appendChild(inp);
+    return d;
+  }
+
+  function renderPanel(){
+    propTitle.textContent = selected ? '属性 · ' + selected : '属性';
+    propPanel.innerHTML = '';
+    if(!selected){
+      propPanel.innerHTML = '<div class="no-sel">在左侧选择一个图层，或在舞台上单击它。</div>';
+      return;
+    }
+    var c = layout.layers[selected];
+    var grid = document.createElement('div');
+    grid.className = 'field';
+    var lab = document.createElement('label'); lab.textContent = '位置 (x, y)';
+    var row = document.createElement('div'); row.className = 'row';
+    var ix = document.createElement('input'); ix.type='number'; ix.value=c.x; ix.step=1;
+    var iy = document.createElement('input'); iy.type='number'; iy.value=c.y; iy.step=1;
+    ix.addEventListener('input', function(){ c.x = parseFloat(ix.value)||0; applyLayer(selected); });
+    iy.addEventListener('input', function(){ c.y = parseFloat(iy.value)||0; applyLayer(selected); });
+    row.appendChild(ix); row.appendChild(iy);
+    grid.appendChild(lab); grid.appendChild(row);
+    propPanel.appendChild(grid);
+
+    propPanel.appendChild(numField('缩放 X (scaleX)', 'scaleX', 0.01));
+    propPanel.appendChild(numField('缩放 Y (scaleY)', 'scaleY', 0.01));
+    propPanel.appendChild(numField('旋转 (rotation)', 'rotation', 1));
+    propPanel.appendChild(numField('透明度 (opacity)', 'opacity', 0.05, 0, 1));
+    propPanel.appendChild(numField('层级 (zIndex)', 'zIndex', 1));
+
+    var fo = document.createElement('div');
+    fo.className = 'field';
+    var lfo = document.createElement('label'); lfo.textContent = '变换原点 (transformOrigin)';
+    var sel = document.createElement('select');
+    ['center','top center','bottom center','left center','right center','top left','top right','bottom left','bottom right'].forEach(function(v){
+      var o = document.createElement('option'); o.value=v; o.textContent=v;
+      if(c.transformOrigin===v) o.selected = true;
+      sel.appendChild(o);
+    });
+    sel.addEventListener('change', function(){ c.transformOrigin = sel.value; applyLayer(selected); });
+    fo.appendChild(lfo); fo.appendChild(sel);
+    propPanel.appendChild(fo);
+
+    var mk = document.createElement('div');
+    mk.className = 'check';
+    var mkc = document.createElement('input'); mkc.type='checkbox'; mkc.checked = !!c.mirror;
+    mkc.addEventListener('change', function(){
+      c.mirror = mkc.checked;
+      applyLayer(selected);
+    });
+    var mkl = document.createElement('span'); mkl.textContent = '镜像 (mirror)';
+    mk.appendChild(mkc); mk.appendChild(mkl);
+    propPanel.appendChild(mk);
+
+    var vi = document.createElement('div');
+    vi.className = 'check';
+    var vic = document.createElement('input'); vic.type='checkbox'; vic.checked = !!c.visible;
+    vic.addEventListener('change', function(){
+      c.visible = vic.checked;
+      applyLayer(selected); buildList();
+    });
+    var vil = document.createElement('span'); vil.textContent = '显示 (visible)';
+    vi.appendChild(vic); vi.appendChild(vil);
+    propPanel.appendChild(vi);
+  }
+
+  stage.addEventListener('mousedown', function(e){
+    var t = e.target.closest('.layer');
+    if(!t){ deselect(); return; }
+    var name = t.dataset.name;
+    selectLayer(name);
+    drag = { name: name, sx: e.clientX, sy: e.clientY, ox: layout.layers[name].x, oy: layout.layers[name].y };
+    t.classList.add('drag');
+    e.preventDefault();
+  });
+  document.addEventListener('mousemove', function(e){
+    if(!drag) return;
+    var c = layout.layers[drag.name];
+    c.x = drag.ox + (e.clientX - drag.sx);
+    c.y = drag.oy + (e.clientY - drag.sy);
+    applyLayer(drag.name);
+    renderPanel();
+  });
+  document.addEventListener('mouseup', function(){
+    if(drag){
+      var el = els[drag.name].el;
+      if(el) el.classList.remove('drag');
+      drag = null;
+    }
+  });
+  stage.addEventListener('wheel', function(e){
+    if(!selected) return;
+    e.preventDefault();
+    var c = layout.layers[selected];
+    if(e.altKey){
+      c.rotation += e.deltaY < 0 ? 2 : -2;
+    } else {
+      var f = e.deltaY < 0 ? 1.04 : 0.96;
+      c.scaleX *= f; c.scaleY *= f;
+    }
+    applyLayer(selected); renderPanel();
+  }, {passive:false});
+  document.addEventListener('keydown', function(e){
+    if(!selected || e.target.tagName==='INPUT' || e.target.tagName==='SELECT') return;
+    var c = layout.layers[selected];
+    var step = e.shiftKey ? 10 : 1;
+    if(e.key==='ArrowLeft'){ c.x -= step; }
+    else if(e.key==='ArrowRight'){ c.x += step; }
+    else if(e.key==='ArrowUp'){ c.y -= step; }
+    else if(e.key==='ArrowDown'){ c.y += step; }
+    else if(e.key==='f' || e.key==='F'){ c.mirror = !c.mirror; }
+    else if(e.key==='['){ c.zIndex -= 1; }
+    else if(e.key===']'){ c.zIndex += 1; }
+    else return;
+    applyLayer(selected); renderPanel();
+  });
+
+  document.getElementById('saveBtn').addEventListener('click', function(){
+    fetch(SAVE_URL, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(layout) })
+      .then(function(r){ return r.json(); })
+      .then(function(j){
+        if(j.ok) toast('布局已保存 → assets/penguin/penguin-layout.json', 'ok');
+        else toast('保存失败: ' + JSON.stringify(j), 'err');
+      })
+      .catch(function(e){ toast('保存失败（服务未连接？）：' + e.message, 'err'); });
+  });
+  document.getElementById('resetBtn').addEventListener('click', function(){
+    layout = JSON.parse(JSON.stringify(DEFAULT_LAYOUT));
+    selected = null;
+    buildStage();
+    renderPanel();
+    toast('已恢复默认布局（未保存，如需生效请点保存）');
+  });
+
+  function loadLayout(){
+    fetch(LAYOUT_URL)
+      .then(function(r){ if(!r.ok) throw new Error('HTTP '+r.status); return r.json(); })
+      .then(function(j){
+        if(j && j.layers){
+          layout = j;
+          buildStage();
+        } else { layout = JSON.parse(JSON.stringify(DEFAULT_LAYOUT)); buildStage(); }
+      })
+      .catch(function(){
+        layout = JSON.parse(JSON.stringify(DEFAULT_LAYOUT));
+        buildStage();
+        toast('未连接到布局服务，已载入内置默认布局', 'err');
+      });
+  }
+  loadLayout();
+})();
+</script>
+</body>
+</html>
