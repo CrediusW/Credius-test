@@ -17,7 +17,7 @@ body{
   background:radial-gradient(1100px 700px at 75% -10%,#2a2350 0%,#171232 48%,#0d0a1f 100%);
   color:var(--text);display:flex;justify-content:center;overflow:hidden;
 }
-.app{width:100%;max-width:430px;height:100%;display:flex;flex-direction:column;padding:16px 18px calc(14px + env(safe-area-inset-bottom));position:relative}
+.app{width:100%;max-width:480px;height:100%;display:flex;flex-direction:column;padding:16px 18px calc(14px + env(safe-area-inset-bottom));position:relative}
 header{display:flex;justify-content:space-between;align-items:center;padding:6px 2px 0}
 .brand{display:flex;align-items:center;gap:8px;font-size:17px;font-weight:600;letter-spacing:.5px}
 .brand .dot{width:10px;height:10px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));box-shadow:0 0 12px rgba(255,140,110,.8)}
@@ -282,6 +282,11 @@ header{display:flex;justify-content:space-between;align-items:center;padding:6px
   .bubble{font-size:13px;max-width:82%}
   .chat{min-height:90px;margin:8px 0}
   .status{font-size:12px;padding:6px 12px}
+}
+@media (min-width:768px){
+  .app{max-width:520px;background:rgba(16,12,34,.5);border-left:1px solid var(--border);border-right:1px solid var(--border);box-shadow:0 0 80px rgba(0,0,0,.4)}
+  .stage{padding-top:14px}
+  .chat{min-height:150px}
 }
 </style>
 </head>
@@ -1599,16 +1604,21 @@ header{display:flex;justify-content:space-between;align-items:center;padding:6px
   function fitStage(){
     var stage = document.getElementById('petStage');
     if(!stage) return;
-    var availW = Math.max(260, window.innerWidth - 20);
-    var availH = Math.max(220, Math.min(window.innerHeight * 0.42, 500));
+    var availW = Math.max(240, window.innerWidth - 24);
+    var header = document.querySelector('header');
+    var actions = document.querySelector('.actions');
+    var micArea = document.querySelector('.mic-area');
+    var otherH = (header ? header.offsetHeight : 0) + (actions ? actions.offsetHeight : 0) + (micArea ? micArea.offsetHeight : 0) + 150;
+    var availH = Math.max(150, window.innerHeight - otherH);
     var s = Math.min(availW / 500, availH / 620, 1);
-    s = Math.max(0.22, s);
+    s = Math.max(0.16, s);
     stage.style.transform = 'scale(' + s.toFixed(4) + ')';
     var wrap = document.getElementById('petWrap');
     if(wrap) wrap.style.height = Math.round(620*s) + 'px';
   }
   window.addEventListener('resize', fitStage);
-  window.addEventListener('orientationchange', function(){ setTimeout(fitStage, 300); });
+  window.addEventListener('orientationchange', function(){ setTimeout(fitStage, 320); });
+  window.addEventListener('load', fitStage);
   fitStage();
 
   setTimeout(function(){
