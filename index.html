@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>我的书架 · AI 电子图书馆</title>
+<style>
+  :root{--sb-wood:#2a1d12;--sb-wood-2:#1d1409;}
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html,body{height:100%;}
+  body{font-family:'Microsoft YaHei','PingFang SC',sans-serif;
+    background:radial-gradient(1400px 900px at 50% 30%, #1b2438 0%, #0a0f1e 60%, #04060c 100%);
+    color:#cfe4f5;overflow-x:hidden;}
+  .sb-header{padding:34px 40px 16px;display:flex;align-items:flex-end;justify-content:space-between;}
+  .sb-brand h1{font-family:'Noto Serif SC','STSong','SimSun',serif;font-size:30px;letter-spacing:8px;color:#e8f6ff;text-shadow:0 0 30px rgba(53,224,255,.3);}
+  .sb-brand p{margin-top:8px;font-size:12px;letter-spacing:4px;color:#7fb6d8;}
+  .sb-stats{font-size:12px;color:#7fb6d8;letter-spacing:2px;}
+  .sb-stats b{color:#bfe9ff;font-size:16px;}
+  .sb-main{display:flex;justify-content:center;align-items:flex-start;gap:26px;padding:20px 40px 40px;}
+  .sb-tabs{display:flex;flex-direction:column;gap:14px;padding-top:10px;width:96px;flex:none;}
+  .sb-tab{display:flex;align-items:center;justify-content:center;gap:8px;padding:14px 12px;border-radius:12px;cursor:pointer;
+    background:rgba(10,18,34,.6);border:1px solid rgba(53,224,255,.18);color:#7fb6d8;font-size:15px;letter-spacing:3px;
+    transition:all .3s;user-select:none;}
+  .sb-tab:hover{background:rgba(53,224,255,.12);color:#bfe9ff;}
+  .sb-tab.active{background:linear-gradient(135deg,#7fe8ff,#35e0ff);color:#03121d;font-weight:700;border-color:transparent;box-shadow:0 8px 20px rgba(53,224,255,.35);}
+  .sb-tab .tb-ico{font-size:18px;}
+  .sb-shelf-wrap{display:flex;justify-content:center;flex:1;min-width:0;}
+  .sb-shelf{width:100%;max-width:1160px;background:repeating-linear-gradient(0deg, rgba(0,0,0,.25) 0 2px, transparent 2px 46px),
+      linear-gradient(180deg, var(--sb-wood) 0%, var(--sb-wood-2) 100%);
+    border-radius:14px 14px 6px 6px;box-shadow:inset 0 0 60px rgba(0,0,0,.6), 0 20px 50px rgba(0,0,0,.5);
+    position:relative;padding:0 34px;transition:opacity .22s ease, transform .22s ease;}
+  .sb-shelf::before{content:"";position:absolute;top:-8px;left:-12px;right:-12px;height:16px;background:linear-gradient(180deg,#5a4230,#3a2a18);border-radius:8px 8px 4px 4px;box-shadow:0 4px 10px rgba(0,0,0,.5);}
+  .sb-shelf::after{content:"";position:absolute;bottom:-8px;left:-12px;right:-12px;height:16px;background:linear-gradient(180deg,#3a2a18,#241708);border-radius:4px 4px 8px 8px;box-shadow:0 8px 20px rgba(0,0,0,.6);}
+  .sb-shelf.fade-out{opacity:0;transform:translateY(12px);}
+  .sb-shelf.fade-in{animation:shelfIn .4s ease;}
+  @keyframes shelfIn{from{opacity:0;transform:translateY(12px);}to{opacity:1;transform:translateY(0);}}
+  .sb-row{display:grid;grid-template-columns:repeat(4,1fr);gap:28px;padding:26px 0;}
+  .sbook{position:relative;cursor:pointer;border-radius:4px;transform-origin:center;transition:transform .45s cubic-bezier(.2,.8,.25,1);display:flex;flex-direction:column;align-items:center;}
+  .sbook:hover{transform:translateY(-6px);}
+  .sbook .sb-cover{position:relative;width:100%;aspect-ratio:3/4.4;border-radius:3px 8px 8px 3px;overflow:hidden;background:#0a1530;
+    box-shadow:inset 0 0 0 1px rgba(255,255,255,.12),0 10px 22px rgba(0,0,0,.5),4px 0 10px rgba(0,0,0,.35);
+    display:flex;align-items:center;justify-content:center;}
+  .sbook .sb-cover::after{content:"";position:absolute;left:0;top:0;bottom:0;width:9px;background:linear-gradient(90deg,rgba(0,0,0,.35),rgba(255,255,255,.06));border-radius:3px 0 0 3px;}
+  .sbook .sb-cover img{width:100%;height:100%;object-fit:cover;display:block;}
+  .sbook .sb-cover .sb-fallback{position:absolute;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;gap:10px;}
+  .sbook .sb-cover .sb-fallback .fi{font-size:40px;}
+  .sbook .sb-cover .sb-fallback .fn{font-family:'Noto Serif SC','STSong','SimSun',serif;font-size:20px;font-weight:700;letter-spacing:4px;color:#fff;writing-mode:vertical-rl;max-height:70%;overflow:hidden;}
+  .sbook .sb-name{margin-top:12px;font-family:'Noto Serif SC','STSong','SimSun',serif;font-size:14px;font-weight:700;letter-spacing:2px;color:#e8f6ff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;text-align:center;}
+  .sbook .sb-badge{position:absolute;top:8px;right:8px;z-index:3;font-size:10px;letter-spacing:1px;padding:3px 8px;border-radius:10px;background:rgba(10,18,34,.9);border:1px solid rgba(53,224,255,.4);color:#7fe8ff;opacity:0;transition:opacity .3s;}
+  .sbook:hover .sb-badge{opacity:1;}
+  .sb-slot{width:100%;aspect-ratio:3/4.4;border:1px dashed rgba(127,182,216,.22);border-radius:4px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;color:#4a5a70;font-size:11px;letter-spacing:2px;}
+  .sb-slot::before{content:"+";font-size:22px;opacity:.5;}
+  .sb-footer{text-align:center;padding:18px;font-size:11px;letter-spacing:3px;color:#4a5a70;}
+  #sbBack{position:fixed;top:14px;left:14px;z-index:5000;width:44px;height:44px;border-radius:50%;background:rgba(10,22,40,.85);border:1px solid rgba(53,224,255,.4);color:#a5f3ff;font-size:20px;display:none;place-items:center;cursor:pointer;transition:all .25s;box-shadow:0 6px 18px rgba(0,0,0,.5);line-height:1;}
+  #sbBack.show{display:grid;}
+  #sbBack:hover{background:rgba(53,224,255,.18);transform:scale(1.06);}
+  #sbBack svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round;}
+  .reader-view{display:none;position:fixed;inset:0;z-index:90;background:rgba(3,6,12,.96);}
+  .reader-view.show{display:block;}
+  .reader-view iframe{width:100%;height:100%;border:none;}
+  @media (max-width:900px){.sb-row{grid-template-columns:repeat(2,1fr);gap:18px;}.sb-main{padding:16px 18px 30px;}.sb-header{padding:24px 20px 10px;}.sb-brand h1{font-size:24px;}}
+</style>
+</head>
+<body>
+
+<div id="shelfView">
+  <div class="sb-header">
+    <div class="sb-brand"><h1>我的书架</h1><p>AI LIBRARY · 点击封面即可阅读</p></div>
+    <div class="sb-stats"><b id="sbCount">0</b> 本上架</div>
+  </div>
+  <div class="sb-main">
+    <div class="sb-tabs" id="sbTabs">
+<div class="sb-tab active" data-cat="novel"><span class="tb-ico">📖</span>小说</div><div class="sb-tab" data-cat="textbook"><span class="tb-ico">📚</span>教材</div>
+    </div>
+    <div class="sb-shelf-wrap"><div class="sb-shelf" id="sbShelf"></div></div>
+  </div>
+  <div class="sb-footer">把书架搬到屏幕里 · 每一本书，都是一个世界</div>
+</div>
+
+<button id="sbBack" title="返回书架" aria-label="返回书架">
+  <svg viewBox="0 0 24 24"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>
+</button>
+
+<div class="reader-view" id="view-silicon-world"><iframe id="frame-silicon-world" src="" title="低频之声"></iframe></div><div class="reader-view" id="view-loop-engineering"><iframe id="frame-loop-engineering" src="" title="Loop Engineering"></iframe></div><div class="reader-view" id="view-dawn-dream"><iframe id="frame-dawn-dream" src="" title="朝闻夕梦"></iframe></div>
+
+<script>
+(function(){
+  const shelf = document.getElementById('sbShelf');
+  const backBtn = document.getElementById('sbBack');
+  const frame_silicon_world = document.getElementById('frame-silicon-world');
+  const view_silicon_world = document.getElementById('view-silicon-world');
+  const frame_loop_engineering = document.getElementById('frame-loop-engineering');
+  const view_loop_engineering = document.getElementById('view-loop-engineering');
+  const frame_dawn_dream = document.getElementById('frame-dawn-dream');
+  const view_dawn_dream = document.getElementById('view-dawn-dream');
+
+  const BOOKS = [
+    { id:'silicon-world', cat:'novel', img:'cover-silicon-world.svg', name:'低频之声', sub:'碳与硅的第一次对话 · 硅基生命世界', open: () => { hideShelf(); frame_silicon_world.src = 'book-silicon-world.html'; view_silicon_world.classList.add('show'); } },
+    { id:'loop-engineering', cat:'textbook', img:'cover-loop-engineering.png', name:'Loop Engineering', sub:'从 Prompt 到 Loop 实战指南', open: () => { hideShelf(); frame_loop_engineering.src = 'book-loop-engineering.html'; view_loop_engineering.classList.add('show'); } },
+    { id:'dawn-dream', cat:'novel', img:'cover-dawn-dream.svg', name:'朝闻夕梦', sub:'智能时代的往事重提 · 人工智能时代的十篇旧事', open: () => { hideShelf(); frame_dawn_dream.src = 'book-dawn-dream.html'; view_dawn_dream.classList.add('show'); } }
+  ];
+  const CATS = Array.from(new Set(BOOKS.map(b => b.cat)));
+  let currentCat = null;
+
+  function buildShelf(cat){
+    shelf.innerHTML = '';
+    const rowDiv = document.createElement('div');
+    rowDiv.className = 'sb-row';
+    BOOKS.filter(b => b.cat === cat).forEach(b => {
+      const div = document.createElement('div');
+      div.className = 'sbook';
+      div.innerHTML =
+        '<div class="sb-cover" data-img="' + b.img + '" style="background-size:cover;background-position:center;">' +
+          '<div class="sb-fallback" style="display:none"><span class="fi">📖</span><span class="fn">' + b.name + '</span></div>' +
+        '</div>' +
+        '<div class="sb-name">' + b.name + '</div>' +
+        '<span class="sb-badge">可阅读</span>';
+      const coverEl = div.querySelector('.sb-cover');
+      coverEl.style.backgroundImage = "url('" + b.img + "')";
+      div.addEventListener('click', b.open);
+      rowDiv.appendChild(div);
+    });
+    for(let i=BOOKS.filter(b => b.cat === cat).length; i<4; i++){
+      const slot = document.createElement('div');
+      slot.className = 'sb-slot';
+      rowDiv.appendChild(slot);
+    }
+    shelf.appendChild(rowDiv);
+  }
+
+  function switchCat(cat, tabEl){
+    if(cat === currentCat) return;
+    currentCat = cat;
+    document.querySelectorAll('.sb-tab').forEach(t => t.classList.toggle('active', t === tabEl));
+    shelf.classList.add('fade-out');
+    setTimeout(() => {
+      buildShelf(cat);
+      shelf.classList.remove('fade-out');
+      shelf.classList.add('fade-in');
+      setTimeout(() => shelf.classList.remove('fade-in'), 400);
+    }, 220);
+  }
+
+  document.querySelectorAll('.sb-tab').forEach(tab => {
+    tab.addEventListener('click', () => switchCat(tab.dataset.cat, tab));
+  });
+
+  function hideShelf(){ document.getElementById('shelfView').style.display = 'none'; backBtn.classList.add('show'); }
+  function showShelf(){
+    BOOKS.forEach(b => {
+      const v = document.getElementById('view-' + b.id);
+      if(v) v.classList.remove('show');
+      const f = document.getElementById('frame-' + b.id);
+      if(f) f.src = 'about:blank';
+    });
+    backBtn.classList.remove('show');
+    document.getElementById('shelfView').style.display = '';
+  }
+
+  backBtn.addEventListener('click', showShelf);
+  document.addEventListener('keydown', (e)=>{ if(e.key === 'Escape' && backBtn.classList.contains('show')) showShelf(); });
+
+  document.getElementById('sbCount').textContent = BOOKS.length;
+  const firstTab = document.querySelector('.sb-tab');
+  if(firstTab) switchCat(firstTab.dataset.cat, firstTab);
+})();
+</script>
+</body>
+</html>
