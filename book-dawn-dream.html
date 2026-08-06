@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>《朝闻夕梦》· 电子书</title>
 <style>
   :root{
@@ -432,12 +432,12 @@
   @media (max-width:900px){
     /* 移动端单页：只显示左页，占满宽度 */
     .book-row{justify-content:center;}
-    .page.left{width:88vw;max-width:520px;height:640px;margin:0;border-radius:6px;}
+    .page.left{width:100vw;max-width:none;height:100vh;margin:0;border-radius:6px;}
     .page.right{display:none;}
     .book-row::after{display:none;}
     .spine{display:none;}
     .page-inner{padding:26px 22px 24px;}
-    .page-content{height:520px;}
+    .page-content{height:calc(100vh - 118px);}
     .topbar{padding:10px 12px;}
     .topbar .bookname{font-size:12px;letter-spacing:2px;}
     .topbar .chap{font-size:10.5px;max-width:36vw;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;}
@@ -469,7 +469,7 @@
     </div>
     <div class="cover-actions">
       <button class="btn-primary" id="btnStart">开始阅读</button>
-      <button class="btn-ghost" id="btnCoverToc">目录</button>
+      
     </div>
   </div>
 </div>
@@ -1547,9 +1547,11 @@ function toast(msg){
 /* ================= 尺寸适配（铺满窗口） ================= */
 function fit(){
   const book = $('book');
-  const availW = window.innerWidth - 40;   /* 左右留边距即可 */
-  const availH = window.innerHeight - 150; /* 顶部栏+底部栏 */
-  const baseW = PAGE_W * 2 + 6 + 13;       /* 两页+间隙+书厚 */
+  const m = isMobileDevice();
+  if (m) { book.style.transform = 'scale(1)'; return; }
+  const availW = window.innerWidth - 40;
+  const availH = window.innerHeight - 150;
+  const baseW = PAGE_W * 2 + 6 + 13;
   const scale = Math.min(availW / baseW, availH / PAGE_H, 1.6);
   book.style.transform = 'scale(' + scale + ')';
 }
@@ -1627,7 +1629,7 @@ $('btnStart').addEventListener('click', () => {
   }
   fit(); render();
 });
-$('btnCoverToc').addEventListener('click', () => openPanel('tocPanel'));
+
 
 $('btnPrev').addEventListener('click', prevSpread);
 $('btnNext').addEventListener('click', nextSpread);
