@@ -58,7 +58,34 @@
   .reader-view{display:none;position:fixed;inset:0;z-index:90;background:rgba(3,6,12,.96);}
   .reader-view.show{display:block;}
   .reader-view iframe{width:100%;height:100%;border:none;}
-  @media (max-width:900px){.sb-row{grid-template-columns:repeat(2,1fr);gap:18px;}.sb-main{padding:16px 18px 30px;}.sb-header{padding:24px 20px 10px;}.sb-brand h1{font-size:24px;}}
+  @media (max-width:900px){
+    .sb-header{flex-direction:column;align-items:flex-start;gap:8px;padding:20px 18px 8px;}
+    .sb-brand h1{font-size:24px;}
+    .sb-stats{font-size:11px;}
+    /* 移动端：类别放顶部横排 */
+    .sb-main{flex-direction:column;gap:14px;padding:12px 14px 24px;}
+    .sb-tabs{flex-direction:row;width:100%;justify-content:center;gap:10px;padding-top:0;}
+    .sb-tab{padding:10px 22px;font-size:14px;flex:1;max-width:160px;}
+    /* 书架：每页2本，横滑 */
+    .sb-shelf{padding:0 16px;max-width:none;width:100%;}
+    .sb-shelf-wrap{width:100%;}
+    .sb-carousel{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;scrollbar-width:none;}
+    .sb-carousel::-webkit-scrollbar{display:none;}
+    .sb-carousel .sb-page{flex:0 0 100%;scroll-snap-align:start;display:grid;grid-template-columns:repeat(2,1fr);gap:20px;padding:22px 6px;}
+    .sb-carousel .sb-row{display:contents;}
+    .sbook .sb-cover{aspect-ratio:3/4.6;}
+    .sbook .sb-name{font-size:13px;}
+    .sb-dots{display:flex;justify-content:center;gap:8px;margin-top:14px;}
+    .sb-dot{width:8px;height:8px;border-radius:50%;background:rgba(127,182,216,.3);transition:all .3s;}
+    .sb-dot.on{background:#35e0ff;width:20px;border-radius:4px;}
+    #sbBack{width:40px;height:40px;top:12px;left:12px;}
+  }
+  /* 桌面端隐藏移动元素 */
+  .sb-carousel,.sb-dots{display:none;}
+  @media (max-width:900px){
+    .sb-carousel,.sb-dots{display:flex;}
+    .sb-row{display:contents;}
+  }
 </style>
 </head>
 <body>
@@ -70,7 +97,7 @@
   </div>
   <div class="sb-main">
     <div class="sb-tabs" id="sbTabs">
-<div class="sb-tab active" data-cat="novel"><span class="tb-ico">📖</span>小说</div><div class="sb-tab" data-cat="textbook"><span class="tb-ico">📚</span>教材</div>
+      <div class="sb-tab active" data-cat="novel"><span class="tb-ico">📖</span>小说</div>      <div class="sb-tab" data-cat="textbook"><span class="tb-ico">📚</span>教材</div>
     </div>
     <div class="sb-shelf-wrap"><div class="sb-shelf" id="sbShelf"></div></div>
   </div>
@@ -81,29 +108,91 @@
   <svg viewBox="0 0 24 24"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>
 </button>
 
-<div class="reader-view" id="view-silicon-world"><iframe id="frame-silicon-world" src="" title="低频之声"></iframe></div><div class="reader-view" id="view-loop-engineering"><iframe id="frame-loop-engineering" src="" title="Loop Engineering"></iframe></div><div class="reader-view" id="view-dawn-dream"><iframe id="frame-dawn-dream" src="" title="朝闻夕梦"></iframe></div>
+<div class="reader-view" id="view-silicon-world"><iframe id="frame-silicon-world" src="" title="低频之声"></iframe></div><div class="reader-view" id="view-loop-engineering"><iframe id="frame-loop-engineering" src="" title="Loop Engineering"></iframe></div><div class="reader-view" id="view-dawn-dream"><iframe id="frame-dawn-dream" src="" title="朝闻夕梦"></iframe></div><div class="reader-view" id="view-loop-engineering"><iframe id="frame-loop-engineering" src="" title="Loop Engineering"></iframe></div><div class="reader-view" id="view-dawn-dream"><iframe id="frame-dawn-dream" src="" title="朝闻夕梦"></iframe></div>
 
 <script>
 (function(){
   const shelf = document.getElementById('sbShelf');
   const backBtn = document.getElementById('sbBack');
-  const frame_silicon_world = document.getElementById('frame-silicon-world');
+    const frame_silicon_world = document.getElementById('frame-silicon-world');
   const view_silicon_world = document.getElementById('view-silicon-world');
   const frame_loop_engineering = document.getElementById('frame-loop-engineering');
   const view_loop_engineering = document.getElementById('view-loop-engineering');
   const frame_dawn_dream = document.getElementById('frame-dawn-dream');
   const view_dawn_dream = document.getElementById('view-dawn-dream');
 
-  const BOOKS = [
+const BOOKS = [
     { id:'silicon-world', cat:'novel', img:'cover-silicon-world.svg', name:'低频之声', sub:'碳与硅的第一次对话 · 硅基生命世界', open: () => { hideShelf(); frame_silicon_world.src = 'book-silicon-world.html'; view_silicon_world.classList.add('show'); } },
     { id:'loop-engineering', cat:'textbook', img:'cover-loop-engineering.png', name:'Loop Engineering', sub:'从 Prompt 到 Loop 实战指南', open: () => { hideShelf(); frame_loop_engineering.src = 'book-loop-engineering.html'; view_loop_engineering.classList.add('show'); } },
     { id:'dawn-dream', cat:'novel', img:'cover-dawn-dream.svg', name:'朝闻夕梦', sub:'智能时代的往事重提 · 人工智能时代的十篇旧事', open: () => { hideShelf(); frame_dawn_dream.src = 'book-dawn-dream.html'; view_dawn_dream.classList.add('show'); } }
   ];
   const CATS = Array.from(new Set(BOOKS.map(b => b.cat)));
   let currentCat = null;
+  const isMobile = window.innerWidth <= 900;
 
-  function buildShelf(cat){
+  function buildShelfMobile(cat){
     shelf.innerHTML = '';
+    shelf.classList.add('carousel');
+    const catBooks = BOOKS.filter(b => b.cat === cat);
+    const pages = [];
+    for(let i=0; i<catBooks.length; i+=2) pages.push(catBooks.slice(i, i+2));
+    if(pages.length === 0) pages.push([]);
+    const carousel = document.createElement('div');
+    carousel.className = 'sb-carousel';
+    pages.forEach(pg => {
+      const page = document.createElement('div');
+      page.className = 'sb-page';
+      pg.forEach(b => {
+        const div = document.createElement('div');
+        div.className = 'sbook';
+        div.innerHTML =
+          '<div class="sb-cover" data-img="' + b.img + '" style="background-size:cover;background-position:center;">' +
+            '<div class="sb-fallback" style="display:none"><span class="fi">📖</span><span class="fn">' + b.name + '</span></div>' +
+          '</div>' +
+          '<div class="sb-name">' + b.name + '</div>' +
+          '<span class="sb-badge">可阅读</span>';
+        const coverEl = div.querySelector('.sb-cover');
+        coverEl.style.backgroundImage = "url('" + b.img + "')";
+        div.addEventListener('click', b.open);
+        page.appendChild(div);
+      });
+      for(let i=pg.length; i<2; i++){
+        const slot = document.createElement('div');
+        slot.className = 'sb-slot';
+        page.appendChild(slot);
+      }
+      carousel.appendChild(page);
+    });
+    shelf.appendChild(carousel);
+    buildDots(pages.length);
+  }
+
+  function buildDots(count){
+    let dots = document.getElementById('sbDots');
+    if(!dots){
+      dots = document.createElement('div');
+      dots.id = 'sbDots';
+      dots.className = 'sb-dots';
+      document.querySelector('.sb-shelf-wrap').appendChild(dots);
+    }
+    dots.innerHTML = '';
+    for(let i=0; i<count; i++){
+      const d = document.createElement('div');
+      d.className = 'sb-dot' + (i===0 ? ' on' : '');
+      dots.appendChild(d);
+    }
+    const carousel = shelf.querySelector('.sb-carousel');
+    if(carousel){
+      carousel.addEventListener('scroll', () => {
+        const idx = Math.round(carousel.scrollLeft / carousel.clientWidth);
+        Array.from(dots.children).forEach((d,i) => d.classList.toggle('on', i===idx));
+      });
+    }
+  }
+
+  function buildShelfDesktop(cat){
+    shelf.innerHTML = '';
+    shelf.classList.remove('carousel');
     const rowDiv = document.createElement('div');
     rowDiv.className = 'sb-row';
     BOOKS.filter(b => b.cat === cat).forEach(b => {
@@ -126,6 +215,11 @@
       rowDiv.appendChild(slot);
     }
     shelf.appendChild(rowDiv);
+  }
+
+  function buildShelf(cat){
+    if(isMobile) buildShelfMobile(cat);
+    else buildShelfDesktop(cat);
   }
 
   function switchCat(cat, tabEl){
@@ -163,6 +257,7 @@
   document.getElementById('sbCount').textContent = BOOKS.length;
   const firstTab = document.querySelector('.sb-tab');
   if(firstTab) switchCat(firstTab.dataset.cat, firstTab);
+  window.__isMobile = isMobile;
 })();
 </script>
 </body>
