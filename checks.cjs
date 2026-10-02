@@ -37,6 +37,9 @@ function pdfFixture() {
           await page.locator('#library').scrollIntoViewIfNeeded();
           await page.waitForFunction(() => Array.from(document.images).every(img => img.complete && img.naturalWidth > 0));
           assert((await page.title()).includes('闻风的奇妙天地'));
+          assert.equal(await page.locator('#library .book').count(), 4);
+          assert.equal(await page.locator('#lab .deepseek-card a').getAttribute('href'), 'https://deepseek-personal-space.aacbcwang.chatgpt.site/');
+          assert.equal(await page.locator('#library .book').last().getAttribute('href'), 'https://deepseek-personal-space.aacbcwang.chatgpt.site/books/investment-operating-system');
         }
       }
     }
