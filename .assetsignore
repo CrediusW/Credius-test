@@ -1,0 +1,9 @@
+.git
+.git/**
+.gitignore
+.assetsignore
+README.md
+**/README.md
+**/*.py
+**/__pycache__/**
+checks.cjs

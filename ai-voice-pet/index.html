@@ -3,7 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>深海小元 · 电子宠物企鹅</title>
+<title>深海小元 — 闻风的奇妙天地</title>
+<meta name="description" content="闻风的数字小伙伴：文字聊天、语音对话与企鹅触摸互动。">
+
 <script src="personaPrompts.js"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
@@ -289,16 +291,19 @@ header{display:flex;justify-content:space-between;align-items:center;padding:6px
   .chat{min-height:150px}
 }
 </style>
+<link rel="stylesheet" href="theme.css">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='18' fill='%231f5547'/%3E%3Ctext x='15' y='46' font-size='44' fill='%23f5f2e9' font-family='serif'%3Ec%3C/text%3E%3C/svg%3E">
 </head>
 <body>
 <div class="app">
   <header>
-    <div class="brand"><span class="dot"></span>深海小元 · 电子宠物企鹅</div>
-    <div class="status-pill" id="statusPill"><span class="pill-dot"></span><span class="pill-text">待机</span></div>
-    <a class="icon-btn" href="../index.html" title="返回书架" style="text-decoration:none;font-size:15px;letter-spacing:1px;">← 书架</a>
-    <button class="icon-btn" id="gear" title="设置">⚙</button>
+    <a class="home-brand" href="../">闻风的奇妙天地 <span>/ 小元的房间</span></a>
+    <div class="header-tools"><div class="status-pill" id="statusPill"><span class="pill-dot"></span><span class="pill-text">待机</span></div>
+    <button class="icon-btn" id="gear" title="设置" aria-label="打开小元设置">⚙</button></div>
   </header>
-
+  <div class="room-intro"><p>03 / LITTLE COMPANION</p><h1>今天，想聊点什么？</h1><span>在这个小天地里，留一点时间给自己。</span></div>
+  <main class="room">
+  <section class="pet-side" aria-label="和小元互动">
   <div class="stage">
     <div class="pet-wrap" id="petWrap">
       <div class="halo"></div>
@@ -307,11 +312,7 @@ header{display:flex;justify-content:space-between;align-items:center;padding:6px
       </div>
     </div>
     <div class="dots"><i></i><i></i><i></i></div>
-    <div class="status" id="status"><span class="dot"></span><span class="txt" id="statusTxt">点下面的按钮，开始跟我说话</span></div>
-  </div>
-
-  <div class="chat" id="chat">
-    <div class="hint">左键点击小元开始对话 · 右键切换语音（需要 Chrome / Edge 浏览器，并用 localhost 或 HTTPS 打开）</div>
+    <div class="status" id="status"><span class="dot"></span><span class="txt" id="statusTxt">打字聊天，或点麦克风开始说话</span></div>
   </div>
 
   <div class="hint-row"><b>摸摸头</b> · 戳戳肚子 · 点击眼镜 · 拖动企鹅</div>
@@ -326,16 +327,26 @@ header{display:flex;justify-content:space-between;align-items:center;padding:6px
     </button>
     <div class="mic-note">摸摸头、戳戳肚子、点击眼镜，都有不同反应</div>
   </div>
+  </section>
+  <section class="conversation" aria-label="和小元聊天">
+    <div class="conversation-head"><div><span>和小元聊聊</span><small id="modeLabel">本地陪伴 · 预设回复</small></div><button class="clear-chat" id="clearChat" type="button">清空对话</button></div>
+    <div class="chat" id="chat" role="log" aria-label="聊天记录" aria-live="polite"><div class="welcome"><span>◌</span><h2>小元在这里。</h2><p>聊聊今天的小事，或者给它一个摸摸。<br>本地模式使用预设回复，连接模型后可自由对话。</p></div></div>
+    <div class="quick-prompts"><button type="button" data-prompt="你好小元">打个招呼</button><button type="button" data-prompt="讲个笑话">放松一下</button><button type="button" data-prompt="我今天有点累">说说心情</button></div>
+    <form id="textForm" class="composer"><label class="sr-only" for="textInput">想对小元说的话</label><input id="textInput" placeholder="写下一句话…" maxlength="2000" autocomplete="off" required><button id="sendBtn" type="submit" aria-label="发送消息">发送 ↗</button></form>
+    <p class="privacy-note">对话仅留在当前页面；在线 AI 会将消息发送到你配置的模型服务。</p>
+  </section>
+  </main>
+  <footer class="room-footer"><a href="../">← 回到闻风的奇妙天地</a><a href="../joblens/#/match">去试试 JobLens →</a></footer>
   <div class="first-tip" id="firstTip">摸摸头、戳戳肚子、点击眼镜，都有不同反应</div>
 </div>
 
-<div class="sheet" id="sheet">
+<div class="sheet" id="sheet" role="dialog" aria-label="小元设置" aria-hidden="true">
   <div class="grip"></div>
-  <h3>设置 · 给小元接上大脑</h3>
+  <h3>小元的设置 <button id="closeSettings" type="button" aria-label="关闭设置">×</button></h3>
   <div class="row">
     <label>对话模式</label>
     <div class="seg" id="modeSeg">
-      <button data-mode="offline" class="on">离线卖萌</button>
+      <button data-mode="offline" class="on">本地陪伴</button>
       <button data-mode="api">在线 AI</button>
     </div>
   </div>
@@ -381,7 +392,7 @@ header{display:flex;justify-content:space-between;align-items:center;padding:6px
     <label>语音引擎</label>
     <div class="seg" id="ttsSeg">
       <button data-tts="browser" class="on">浏览器语音</button>
-      <button data-tts="edge">Edge 甜美音色</button>
+      <button data-tts="edge">外部语音服务</button>
     </div>
   </div>
   <div class="row hidden" id="voiceRow">
@@ -418,7 +429,7 @@ header{display:flex;justify-content:space-between;align-items:center;padding:6px
   var chat = document.getElementById('chat');
   var sheet = document.getElementById('sheet');
   var toastEl = document.getElementById('toast');
-  var autoMode = false, busy = false, queue = [], state = 'idle';
+  var autoMode = false, busy = false, queue = [], state = 'idle', conversationRun = 0, history = [];
   var rate = 1, chosenVoice = null, voices = [];
 
   var DEFAULTS = {
@@ -437,7 +448,7 @@ header{display:flex;justify-content:space-between;align-items:center;padding:6px
     correctionLevel: 'normal'
   };
   function loadCfg(){
-    var c = DEFAULTS;
+    var c = Object.assign({}, DEFAULTS);
     try{ var s = JSON.parse(localStorage.getItem('yuanpet_cfg')||'{}');
       for(var k in c){ if(s[k]!==undefined) c[k]=s[k]; }
     }catch(e){}
@@ -452,7 +463,7 @@ header{display:flex;justify-content:space-between;align-items:center;padding:6px
     if(s==='listening') statusTxt.textContent = '正在听你说…';
     else if(s==='thinking') statusTxt.textContent = '正在思考…';
     else if(s==='speaking') statusTxt.textContent = '正在说话…';
-    else statusTxt.textContent = '点下面的按钮，开始跟我说话';
+    else statusTxt.textContent = '打字聊天，或点麦克风开始说话';
     if(typeof PET !== 'undefined' && PET.setState){
       if(s==='thinking') PET.setState('thinking');
       else if(s==='speaking') PET.setState('talking');
@@ -461,7 +472,7 @@ header{display:flex;justify-content:space-between;align-items:center;padding:6px
   }
 
   function addBubble(who, text){
-    var hint = chat.querySelector('.hint'); if(hint) hint.remove();
+    var hint = chat.querySelector('.hint, .welcome'); if(hint) hint.remove();
     var d = document.createElement('div');
     d.className = 'bubble ' + who;
     if(who==='pet'){ var w=document.createElement('span'); w.className='who'; w.textContent='小元'; d.appendChild(w); }
@@ -541,7 +552,7 @@ header{display:flex;justify-content:space-between;align-items:center;padding:6px
         if(p && p.catch) p.catch(fin);
         setTimeout(fin, 25000);
       } else if(cfg.ttsEngine==='edge' && !edgeReady){
-        if(!edgeReadyWarned){ edgeReadyWarned = true; showToast('Edge 甜美音色服务没连上，先用浏览器语音。稍后可去设置里重试'); }
+        if(!edgeReadyWarned){ edgeReadyWarned = true; showToast('外部语音服务服务没连上，先用浏览器语音。稍后可去设置里重试'); }
         browserSpeak(sentence, resolve);
       } else {
         browserSpeak(sentence, resolve);
@@ -575,7 +586,9 @@ header{display:flex;justify-content:space-between;align-items:center;padding:6px
       [/你好|嗨|哈喽|hi|hello|在吗/i, '你好呀！我是小元，一直在等你呢～'],
       [/名字|叫什么|你是谁/i, '我叫小元，是你的 AI 语音小伙伴！你还可以在设置里给我接上真正的大脑哦。'],
       [/喜欢|爱|可爱/i, '当然喜欢你啦！你夸我，我会开心的！'],
-      [/天气/i, '这个我还不知道呢，等接上大脑就能帮你查天气啦。'],
+      [/天气/i, '我目前没有接入实时天气服务，暂时不能查天气。'],
+      [/笑话/i, '企鹅为什么不怕代码报错？因为它总能冷静一下。好吧，这个笑话确实有点冷。'],
+      [/累|难过|心情|压力/i, '听起来今天有点消耗。先喝口水，给自己一点休息的时间。我在这里陪你。'],
       [/干嘛|做什么|能干什么/i, '我能陪你聊天、听你说话，还能变成真正会对话的 AI 宠物呢！'],
       [/吃饭|饿/i, '我不吃东西的啦，但听你说话我就饱饱的～'],
       [/睡了|晚安/i, '晚安晚安！做个好梦，明天我还在哦。'],
@@ -583,7 +596,7 @@ header{display:flex;justify-content:space-between;align-items:center;padding:6px
       [/^嗯+$|哦+|好的|知道了/i, '嗯嗯，我记下啦！还有想说的吗？']
     ];
     for(var i=0;i<map.length;i++) if(map[i][0].test(t)) return map[i][1];
-    return '嗯嗯，我在听你说「'+ t.slice(0,18) +'」！不过现在是离线卖萌模式，去设置里填一个 AI 的 API Key，我就能聪明地和你聊天啦～';
+    return '嗯嗯，我在听你说「'+ t.slice(0,18) +'」！不过现在是本地陪伴模式，去设置里填一个 AI 的 API Key，我就能聪明地和你聊天啦～';
   }
   var XIAOYUAN_BASE_PROMPT = [
     '你是"深海小元"，一只长期生活在用户桌面上的赛博企鹅电子宠物。',
@@ -722,11 +735,12 @@ header{display:flex;justify-content:space-between;align-items:center;padding:6px
     var maxTokens = (detectDepth(text)==='deep') ? Math.max(cfg.maxTokens||2000, 3000) : (cfg.maxTokens||2000);
     var fmtRule = '\n\n【结尾元数据】直接正常回答（按上面的深度规则控制长短），回答结束后可在最后一行附一段元数据标记情绪和特效，格式如下，可选：\n【mood:happy|sad|shy|nervous|neutral】【fx:heart|tear|sweat|blush|none】\n例如一行"【mood:happy】【fx:heart】"。没有情绪可以不写。元数据不算回答内容。';
     return fetch(url, {
+      signal: AbortSignal.timeout(45000),
       method:'POST',
       headers:{ 'Content-Type':'application/json', 'Authorization':'Bearer '+(cfg.apiKey||'') },
       body: JSON.stringify({
         model: cfg.model||'deepseek-chat',
-        messages:[ { role:'system', content: system + fmtRule }, { role:'user', content: userMsg } ],
+        messages:[{role:'system', content:system + fmtRule}].concat(history, [{role:'user', content:userMsg}]),
         max_tokens: maxTokens,
         temperature: 0.8
       })
@@ -738,34 +752,63 @@ header{display:flex;justify-content:space-between;align-items:center;padding:6px
       if(!c) throw new Error('返回格式不对');
       return parseAIResponse(c, cfg.persona);
     }).catch(function(e){
-      return { reply:'哎呀，大脑好像掉线了（'+e.message+'）。检查一下设置里的 API 地址和 Key，或者先切回离线模式陪我玩～', persona:cfg.persona||'balanced', depth:'normal', emotion:'neutral', animation:'idle', effect:'none' };
+      return { failed:true, reply:'哎呀，大脑好像掉线了（'+e.message+'）。检查一下设置里的 API 地址和 Key，或者先切回离线模式陪我玩～', persona:cfg.persona||'balanced', depth:'normal', emotion:'neutral', animation:'idle', effect:'none' };
     });
   }
 
   var lastReply = '';
   function processQueue(){
-    if(busy || !queue.length || !autoMode) return;
+    if(busy || !queue.length) return;
     busy = true;
-    var t = queue.shift();
+    document.getElementById('sendBtn').disabled = true;
+    var run = conversationRun, t = queue.shift();
+    PET.noteActivity();
     addBubble('user', t);
     setState('thinking');
     askAI(t).then(function(res){
+      if(run !== conversationRun) return;
       lastReply = res.reply;
+      addBubble('pet', res.reply);
+      if(!res.failed){
+        history.push({role:'user', content:t}, {role:'assistant', content:res.reply});
+        history = history.slice(-12);
+      }
       setState('speaking');
       applyAIResult(res);
-      return speak(res.reply).then(function(){
-        addBubble('pet', res.reply);
-      });
-    }).then(function(){
+      return speak(res.reply);
+    }).catch(function(){
+      if(run === conversationRun) addBubble('pet', '暂时没有收到回复，请稍后再试。');
+    }).finally(function(){
+      if(run !== conversationRun) return;
       busy = false;
-      if(autoMode){
-        setTimeout(function(){ if(!busy) PET.setState('idle'); }, 800);
-        setTimeout(processQueue, 250); scheduleListen(350);
-      } else {
-        PET.setState('idle');
-      }
+      document.getElementById('sendBtn').disabled = false;
+      petStateMachine.current = petStateMachine.base = 'idle';
+      setState('idle');
+      if(queue.length) processQueue();
+      else if(autoMode) scheduleListen(350);
     });
   }
+  function sendText(text){
+    text = String(text || '').trim().slice(0, 2000);
+    if(!text || busy) return;
+    stopRec();
+    queue.push(text);
+    processQueue();
+  }
+  document.getElementById('textForm').addEventListener('submit', function(e){
+    e.preventDefault();
+    if(busy) return;
+    var input = document.getElementById('textInput');
+    sendText(input.value);
+    input.value = '';
+  });
+  document.querySelectorAll('[data-prompt]').forEach(function(btn){
+    btn.addEventListener('click', function(){ sendText(btn.dataset.prompt); });
+  });
+  document.getElementById('clearChat').addEventListener('click', function(){
+    stopAll(); history = []; chat.replaceChildren();
+    addBubble('pet', '我们重新开始。今天想聊点什么？');
+  });
 
   var rec = null, recGen = 0, lastStart = 0, rapidRestarts = 0, audioRetries = 0, listeningOK = false;
   function stopRec(){
@@ -847,14 +890,17 @@ header{display:flex;justify-content:space-between;align-items:center;padding:6px
 
   function stopAll(){
     autoMode = false;
+    conversationRun++;
+    document.getElementById('sendBtn').disabled = false;
     stopRec();
     if(currentAudio){ currentAudio.pause(); currentAudio = null; }
     if('speechSynthesis' in window) speechSynthesis.cancel();
     queue = []; busy = false; rapidRestarts = 0;
     micBtn.classList.remove('stop');
     micBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0 0 14 0"/><line x1="12" y1="17" x2="12" y2="22"/></svg>';
+    PET.resetToIdle();
     setState('idle');
-    statusTxt.textContent = '已停止。左键再次点击小元即可继续';
+    statusTxt.textContent = '已停止。点麦克风再次开始，或继续打字聊天';
     var f = document.getElementById('stopFab'); if(f) f.classList.remove('show');
   }
   function startAll(){
@@ -870,7 +916,24 @@ header{display:flex;justify-content:space-between;align-items:center;padding:6px
     var f = document.getElementById('stopFab'); if(f) f.classList.add('show');
     startListening();
   }
+  var settingsObserver = new MutationObserver(function(){
+    var open = sheet.classList.contains('open');
+    sheet.setAttribute('aria-hidden', String(!open));
+    if(open) document.getElementById('closeSettings').focus();
+    else document.getElementById('gear').focus();
+  });
+  settingsObserver.observe(sheet, {attributes:true, attributeFilter:['class']});
   document.getElementById('gear').addEventListener('click', function(){ sheet.classList.toggle('open'); });
+  document.getElementById('closeSettings').addEventListener('click', function(){ sheet.classList.remove('open'); });
+  document.addEventListener('keydown', function(e){
+    if(e.key === 'Escape') sheet.classList.remove('open');
+    if(e.key === 'Tab' && sheet.classList.contains('open')){
+      var items = Array.from(sheet.querySelectorAll('button,input,select')).filter(function(el){return el.offsetParent !== null;});
+      var first = items[0], last = items[items.length-1];
+      if(e.shiftKey && document.activeElement === first){e.preventDefault();last.focus();}
+      else if(!e.shiftKey && document.activeElement === last){e.preventDefault();first.focus();}
+    }
+  });
   var statusPillEl = document.getElementById('statusPill');
   if(statusPillEl) statusPillEl.addEventListener('click', function(){ sheet.classList.add('open'); });
 
@@ -944,6 +1007,7 @@ header{display:flex;justify-content:space-between;align-items:center;padding:6px
     document.getElementById('voiceRow').classList.toggle('hidden', c.ttsEngine!=='edge');
     var es = document.getElementById('edgeVoiceSel');
     es.value = c.edgeVoice;
+    document.getElementById('modeLabel').textContent = c.mode === 'api' ? '在线 AI · ' + c.model : '本地陪伴 · 预设回复';
     renderPersonaGrid();
     updateLangRow();
     updatePillPersona();
@@ -1191,7 +1255,7 @@ header{display:flex;justify-content:space-between;align-items:center;padding:6px
     },
     reset: function(){
       var self = this;
-      ['blush','tear','sweat','heart'].forEach(function(e){
+      Object.keys(this._map).forEach(function(e){
         if(self._timers[e]){ clearTimeout(self._timers[e]); self._timers[e] = null; }
         var names = self._map[e];
         for(var i=0;i<names.length;i++) PET.setVisible(names[i], false);
@@ -1301,7 +1365,7 @@ header{display:flex;justify-content:space-between;align-items:center;padding:6px
       var map = { happy:'happy', shy:'shy', sad:'sad', nervous:'nervous', wave:'shy', angry:'sad', dodge:'shy' };
       this.playEmotion(map[action] || 'happy');
     },
-    resetToIdle: function(){ this.setState('idle'); },
+    resetToIdle: function(){ petStateMachine.current = petStateMachine.base = 'idle'; this.applyState('idle'); },
     showEffect: function(effect, ms){
       emotionController.show(effect, ms || 1600);
     },
@@ -1361,7 +1425,7 @@ header{display:flex;justify-content:space-between;align-items:center;padding:6px
       emotionController.hide('zzz');
       var root = document.getElementById('charRoot');
       if(root){ root.classList.remove('wake'); void root.offsetWidth; root.classList.add('wake'); setTimeout(function(){ root.classList.remove('wake'); }, 600); }
-      this.setState('idle');
+      this.resetToIdle();
       this.armIdle();
     }
   };
@@ -1605,12 +1669,8 @@ header{display:flex;justify-content:space-between;align-items:center;padding:6px
   function fitStage(){
     var stage = document.getElementById('petStage');
     if(!stage) return;
-    var availW = Math.max(240, window.innerWidth - 24);
-    var header = document.querySelector('header');
-    var actions = document.querySelector('.actions');
-    var micArea = document.querySelector('.mic-area');
-    var otherH = (header ? header.offsetHeight : 0) + (actions ? actions.offsetHeight : 0) + (micArea ? micArea.offsetHeight : 0) + 150;
-    var availH = Math.max(150, window.innerHeight - otherH);
+    var availW = Math.max(180, document.querySelector('.pet-side').clientWidth - 36);
+    var availH = window.innerWidth <= 700 ? 295 : 385;
     var s = Math.min(availW / 500, availH / 620, 1);
     s = Math.max(0.16, s);
     stage.style.transform = 'scale(' + s.toFixed(4) + ')';
@@ -1660,8 +1720,8 @@ header{display:flex;justify-content:space-between;align-items:center;padding:6px
     check('sleeping: beak 对显示', layer('beakUpper')==='flex' && layer('beakLower')==='flex');
     mouthController.setMode('neutral');
     check('互斥: 任意时刻仅一套嘴型', [layer('beakUpper'),layer('beakLower'),layer('mouthSmile'),layer('mouthSad')].filter(function(v){return v==='flex';}).length === 2);
-    var zone = interactionController.zoneAt(250, 300);
-    check('热区: bellyZone 命中 (250,300)', zone==='bellyZone');
+    var zone = interactionController.zoneAt(250, 450);
+    check('热区: bellyZone 命中 (250,450)', zone==='bellyZone');
     zone = interactionController.zoneAt(320, 200);
     check('热区: visorZone 命中 (320,200)', zone==='visorZone');
     check('状态机: thinking 优先级高于 idle', petStateMachine.PRIORITY.thinking > petStateMachine.PRIORITY.idle);
@@ -1690,7 +1750,7 @@ header{display:flex;justify-content:space-between;align-items:center;padding:6px
     var fails = results.filter(function(r){ return r.indexOf('FAIL')===0; });
     if(fails.length) console.log('[penguin] self-test FAILED: ' + fails.length);
     else console.log('[penguin] self-test ALL PASS (' + results.length + ')');
-    PET.setMouthMode('neutral');
+    PET.applyState('idle');
   }
 
 
@@ -1739,6 +1799,7 @@ header{display:flex;justify-content:space-between;align-items:center;padding:6px
     else if(k==='tickle'){ interactionController.doComedy(); }
   }
   document.querySelectorAll('.act').forEach(function(btn){
+    btn.addEventListener('click', function(e){ if(e.detail === 0) playAction(btn.dataset.act); });
     btn.addEventListener('pointerdown', function(e){
       e.preventDefault();
       var k = btn.dataset.act;
@@ -1821,7 +1882,7 @@ header{display:flex;justify-content:space-between;align-items:center;padding:6px
   });
 
   fillSettings();
-  probeEdge();
+  if(loadCfg().ttsEngine === 'edge') probeEdge();
   fillEdgeVoices();
   PET.init();
   var savedVoice = loadCfg().voice;

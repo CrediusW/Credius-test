@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>小书房 — 闻风的奇妙天地</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:-apple-system,'PingFang SC',sans-serif;background:#f7f6f0;color:#233d34}header{height:64px;display:flex;align-items:center;justify-content:space-between;gap:20px;padding:0 28px;border-bottom:1px solid #dce0d5}a{font-size:13px;color:inherit;text-decoration:none}a span{color:#7b8776;margin-left:15px;font-size:11px}select{max-width:48%;border:1px solid #d1dac6;padding:7px 12px;border-radius:6px;color:#245545;background:#fffef9}iframe{display:block;width:100%;height:calc(100dvh - 64px);border:0}a:focus-visible,select:focus-visible{outline:3px solid #b88643;outline-offset:4px}@media(max-width:600px){header{height:60px;padding:0 16px;gap:8px}a{font-size:11px}a span{display:none}select{font-size:11px}iframe{height:calc(100dvh - 60px)}}
+</style>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='18' fill='%231f5547'/%3E%3Ctext x='15' y='46' font-size='44' fill='%23f5f2e9' font-family='serif'%3Ec%3C/text%3E%3C/svg%3E">
+</head>
+<body>
+<header><a href="./#library">← 闻风的奇妙天地 <span>/ 小书房</span></a><select id="bookSelect" aria-label="选择阅读的书"><option value="silicon-world">低频之声</option><option value="loop-engineering">Loop Engineering</option><option value="dawn-dream">朝闻夕梦</option></select></header>
+<iframe id="bookFrame" title="电子书阅读器"></iframe>
+<script>
+const select = document.getElementById('bookSelect');
+const requested = new URLSearchParams(location.search).get('book');
+const book = Array.from(select.options).find(option => option.value === requested) || select.options[0];
+select.value = book.value;
+document.title = book.text + ' — 闻风的小书房';
+document.getElementById('bookFrame').src = 'book-' + book.value + '.html';
+select.addEventListener('change', () => { location.search = '?book=' + select.value; });
+</script>
+</body>
+</html>

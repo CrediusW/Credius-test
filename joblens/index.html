@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>JobLens 职透 — 闻风的奇妙天地</title>
+<meta name="description" content="JobLens 职透：开源 AI 求职驾驶舱。贴 JD、传简历，30 秒看清匹配度与差距；AI 模拟面试；作品集雷达。默认本地分析，支持连接自己的 AI 模型。">
+<script>
+(function(){
+  var t = null;
+  try { t = localStorage.getItem('jl:theme'); } catch(e){}
+  if (t !== 'dark' && t !== 'light' && t !== 'system') t = 'light';
+  document.documentElement.setAttribute('data-theme', t);
+})();
+</script>
+<link rel="stylesheet" href="assets/css/style.css">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='18' fill='%231f5547'/%3E%3Ctext x='15' y='46' font-size='44' fill='%23f5f2e9' font-family='serif'%3Ec%3C/text%3E%3C/svg%3E">
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar-inner">
+    <a class="brand" href="../" aria-label="返回闻风的奇妙天地">
+      <span class="logo" aria-hidden="true">◎</span>
+      <span class="brand-name">JobLens</span>
+      <span class="brand-sub">← 闻风主页</span>
+    </a>
+    <nav id="nav" class="nav" aria-label="主导航">
+      <a href="#/portfolio" data-route="portfolio">作品集</a>
+      <a href="#/match" data-route="match">JD 匹配</a>
+      <a href="#/interview" data-route="interview">模拟面试</a>
+      <a href="#/settings" data-route="settings">设置</a>
+    </nav>
+    <button id="themeBtn" class="icon-btn" title="切换主题" aria-label="切换主题">深色</button>
+  </div>
+</header>
+
+<div class="tool-intro"><p>01 / CAREER TOOLKIT</p><h1>把准备，落到实处。</h1><span>简历匹配 · 面试练习 · 作品整理</span></div>
+<main id="app" class="app" aria-live="polite">
+  <div class="loading-hint">正在加载…</div>
+</main>
+
+<footer class="footer">
+  <div class="footer-inner">
+    <span>闻风的奇妙天地 · 本地模式不上传简历；在线 AI 会将相关文本发送到你配置的服务</span>
+    <span class="footer-sep">·</span>
+    <a href="https://github.com/CrediusW/Credius-test/tree/main/joblens" target="_blank" rel="noopener" id="ghLink">GitHub</a>
+  </div>
+</footer>
+
+<script src="assets/vendor/echarts.min.js" onerror="window.__echartsFailed=true"></script>
+<script src="assets/vendor/pdf.min.js" onerror="window.__pdfFailed=true"></script>
+<script src="assets/js/data.js"></script>
+<script src="assets/js/store.js"></script>
+<script src="assets/js/ui.js"></script>
+<script src="assets/js/pdf-parse.js"></script>
+<script src="assets/js/ai.js"></script>
+<script src="assets/js/views/portfolio.js"></script>
+<script src="assets/js/views/match.js"></script>
+<script src="assets/js/views/interview.js"></script>
+<script src="assets/js/views/settings.js"></script>
+<script src="assets/js/main.js"></script>
+</body>
+</html>
