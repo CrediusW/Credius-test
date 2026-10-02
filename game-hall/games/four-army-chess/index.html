@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#20251f" />
+    <title>四国军棋 · CREDIUS ARCADE</title>
+    <link rel="stylesheet" href="../../src/game-shell.css" />
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="../../theme.css" />
+  </head>
+  <body>
+    <main class="army-shell">
+      <header class="army-topbar">
+        <button id="backLobby" class="icon-command" type="button" aria-label="返回大厅">←</button>
+        <div class="army-title"><strong>四国军棋</strong><span>四人全暗 · 对家同盟</span></div>
+        <div id="connectionState" class="connection-state" data-state="connecting"><i></i><strong>连接中</strong></div>
+        <button id="rulesButton" class="icon-command" type="button" aria-label="查看规则" title="查看规则">?</button>
+        <button id="profileButton" class="profile-command" type="button" aria-label="修改玩家资料">
+          <span id="profileAvatar" class="avatar avatar-mint">W</span><strong id="profileName">玩家</strong>
+        </button>
+      </header>
+
+      <section id="conflictScreen" class="conflict-screen" hidden>
+        <p>你当前还在另一款多人游戏的房间中。</p>
+        <button id="leaveOtherRoom" class="primary-command" type="button">离开原房间</button>
+      </section>
+
+      <section id="entryScreen" class="entry-screen">
+        <div class="entry-board" aria-hidden="true"><canvas id="previewBoard" width="1020" height="1020"></canvas></div>
+        <div class="entry-actions">
+          <p class="section-label">FOUR NATIONS</p>
+          <h1>暗子交锋，对家并肩</h1>
+          <p>邀请朋友，或由房主补充机器人后开始暗棋战役。</p>
+          <button id="createRoom" class="primary-command" type="button">创建四国军棋房间</button>
+          <form id="joinForm" class="join-form">
+            <label for="roomCode">房间码</label>
+            <div><input id="roomCode" type="text" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" placeholder="6 位数字" /><button type="submit">加入</button></div>
+          </form>
+        </div>
+      </section>
+
+      <section id="roomScreen" class="room-screen" hidden>
+        <header class="room-heading">
+          <div><p class="section-label">ROOM</p><h1>房间 <button id="copyRoomCode" type="button"><span id="roomCodeValue">000000</span></button></h1></div>
+          <button id="leaveRoom" class="quiet-command" type="button">离开</button>
+        </header>
+        <div id="roomPlayers" class="room-players"></div>
+        <div class="alliance-note"><span>北方 + 南方</span><strong>对阵</strong><span>东方 + 西方</span></div>
+        <div class="room-actions">
+          <button id="readyButton" class="primary-command" type="button">准备</button>
+          <button id="addBotButton" type="button" hidden>添加机器人</button>
+          <button id="startButton" type="button" hidden>开始战役</button>
+          <p id="roomHint" role="status"></p>
+        </div>
+      </section>
+
+      <section id="gameScreen" class="game-screen" hidden>
+        <div id="turnPlayers" class="turn-players"></div>
+        <div class="board-stage">
+          <canvas id="armyBoard" width="1020" height="1020" tabindex="0" role="application" aria-label="四国军棋棋盘"></canvas>
+          <div id="annotationMenu" class="annotation-menu" role="dialog" aria-label="暗棋标注" hidden></div>
+          <div id="finishBanner" class="finish-banner" hidden>
+            <div><strong id="finishTitle">战役结束</strong><span id="finishText"></span></div>
+            <button id="openReplay" class="primary-command" type="button">明棋复盘</button>
+          </div>
+        </div>
+        <aside class="command-panel">
+          <div class="room-strip"><span>房间</span><button id="gameRoomCode" type="button">000000</button><button id="gameLeaveRoom" class="icon-command" type="button" aria-label="离开房间">×</button></div>
+          <section id="turnControl" class="turn-control">
+            <p><span id="turnLabel">等待战役</span><b id="turnCountdown" class="turn-countdown" hidden>30</b></p>
+            <strong id="actionLabel">连接服务端裁判</strong>
+            <p id="selectionLabel">点击己方棋子查看合法路线</p>
+          </section>
+          <section id="deploymentPanel" class="deployment-panel" hidden>
+            <p class="section-label">DEPLOYMENT</p>
+            <h2>选择你的排兵布阵</h2>
+            <div id="deploymentSchemes" class="deployment-schemes"></div>
+            <p id="deploymentHint">选好方案后，可在棋盘上依次点击两枚己方棋子互换。</p>
+            <button id="confirmDeployment" class="primary-command" type="button">确认阵型</button>
+          </section>
+          <section class="battle-feed"><h2>战况</h2><ol id="battleFeed"></ol></section>
+          <section id="replayControls" class="replay-controls" hidden>
+            <div><strong>明棋复盘</strong><button id="closeReplay" class="icon-command" type="button" aria-label="退出复盘">×</button></div>
+            <input id="replayRange" type="range" min="0" max="0" value="0" aria-label="复盘步骤" />
+            <div class="replay-buttons">
+              <button id="replayPrevious" class="icon-command" type="button" aria-label="上一步">←</button>
+              <button id="replayPlay" class="icon-command" type="button" aria-label="播放复盘">▶</button>
+              <button id="replayNext" class="icon-command" type="button" aria-label="下一步">→</button>
+            </div>
+            <p id="replayLabel">初始布阵</p>
+          </section>
+        </aside>
+      </section>
+    </main>
+
+    <section id="profileLayer" class="modal-layer" hidden>
+      <form id="profileForm" class="profile-form">
+        <p class="section-label">PLAYER</p><h2>设置玩家资料</h2>
+        <label><span>昵称</span><input id="nickname" type="text" maxlength="16" autocomplete="nickname" required /></label>
+        <fieldset><legend>头像颜色</legend><div id="avatarChoices" class="avatar-choices"></div></fieldset>
+        <p id="profileError" class="form-error" role="alert"></p>
+        <button class="primary-command" type="submit">保存并连接</button><button id="cancelProfile" class="quiet-command" type="button">取消</button>
+      </form>
+    </section>
+
+    <section id="ruleLayer" class="modal-layer" hidden>
+      <div class="rule-dialog" role="dialog" aria-modal="true" aria-labelledby="ruleTitle">
+        <header><div><p class="section-label">RULESET 1</p><h2 id="ruleTitle">本版四国军棋规则</h2></div><button id="closeRules" class="icon-command" type="button" aria-label="关闭规则">×</button></header>
+        <ol>
+          <li><strong>阵营：</strong>北南结盟、东西结盟；可由房主补充机器人，四方满员后开始。</li>
+          <li><strong>暗棋：</strong>只看得到自己的军衔；司令阵亡后该方军旗亮出。</li>
+          <li><strong>布阵：</strong>选择预设方案后可自由互换己方棋子；军旗在大本营，地雷在后两排，炸弹不在第一排。</li>
+          <li><strong>移动：</strong>公路一步；铁路无阻挡可直行，中央铁路可贯穿对面，外环弯轨可直接转向侧翼；工兵还能在铁路交叉口转弯。</li>
+          <li><strong>限时：</strong>每回合 30 秒；超时会跳过本回合，累计超过 3 次则自动投降。</li>
+          <li><strong>交锋：</strong>司令至工兵依次比较大小，大者留在交战格；同级同归于尽。</li>
+          <li><strong>特殊棋：</strong>工兵排雷；其他棋子撞雷时进攻方消失；炸弹与任何敌子同归于尽。</li>
+          <li><strong>行营：</strong>行营中的棋子不能被攻击；不能攻击对家棋子。</li>
+          <li><strong>胜负：</strong>军旗被夺或无棋可走则该方退出；一个联盟两方都退出时战役结束。</li>
+        </ol>
+      </div>
+    </section>
+
+    <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+    <script src="../../src/hamsterBalance.js"></script>
+    <script src="../../src/storage.js"></script>
+    <script src="../../src/playerIdentity.js"></script>
+    <script src="../../src/multiplayerClient.js"></script>
+    <script type="module" src="game.js"></script>
+  </body>
+</html>

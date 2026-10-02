@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#17201d" />
+    <title>飞行棋 · CREDIUS ARCADE</title>
+    <link rel="stylesheet" href="../../src/game-shell.css" />
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="../../theme.css" />
+  </head>
+  <body>
+    <main class="ludo-shell">
+      <header class="ludo-topbar">
+        <button id="backLobby" class="icon-command" type="button" aria-label="返回大厅">←</button>
+        <div class="ludo-title">
+          <strong>飞行棋</strong>
+          <span>多人房间</span>
+        </div>
+        <div id="connectionState" class="connection-state" data-state="connecting">
+          <span aria-hidden="true"></span>
+          <strong>连接中</strong>
+        </div>
+        <button id="rulesButton" class="icon-command rules-command" type="button" aria-label="查看飞行棋规则" title="查看规则">?</button>
+        <button id="profileButton" class="profile-command" type="button" aria-label="修改玩家资料">
+          <span id="profileAvatar" class="avatar avatar-mint">W</span>
+          <strong id="profileName">玩家</strong>
+        </button>
+      </header>
+
+      <section id="entryScreen" class="entry-screen">
+        <div class="entry-board" aria-hidden="true">
+          <canvas id="previewBoard" width="720" height="720"></canvas>
+        </div>
+        <div class="entry-actions">
+          <p class="section-label">MULTIPLAYER</p>
+          <h1>和朋友开一局</h1>
+          <button id="createRoom" class="primary-command" type="button">创建房间</button>
+          <form id="joinForm" class="join-form">
+            <label for="roomCode">房间码</label>
+            <div>
+              <input id="roomCode" name="room-code" type="text" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" autocomplete="one-time-code" placeholder="6 位数字" />
+              <button type="submit">加入</button>
+            </div>
+          </form>
+        </div>
+      </section>
+
+      <section id="roomScreen" class="room-screen" hidden>
+        <header class="room-heading">
+          <div>
+            <p class="section-label">ROOM</p>
+            <h1>房间 <button id="copyRoomCode" type="button" title="复制房间码"><span id="roomCodeValue">000000</span></button></h1>
+          </div>
+          <button id="leaveRoom" class="quiet-command" type="button">离开房间</button>
+        </header>
+        <div id="roomPlayers" class="room-players" aria-live="polite"></div>
+        <div class="room-actions">
+          <button id="addBotButton" type="button" hidden>添加机器人</button>
+          <button id="readyButton" class="primary-command" type="button">准备</button>
+          <button id="startButton" type="button" hidden>开始游戏</button>
+          <p id="roomHint" role="status"></p>
+        </div>
+      </section>
+
+      <section id="gameScreen" class="game-screen" hidden>
+        <div id="turnPlayers" class="turn-players"></div>
+        <div class="board-stage">
+          <canvas id="ludoBoard" width="900" height="900" tabindex="0" role="application" aria-label="飞行棋棋盘"></canvas>
+          <div id="winnerOverlay" class="winner-overlay" hidden>
+            <div role="status" aria-labelledby="winnerTitle">
+              <p class="section-label">FINISH</p>
+              <h2 id="winnerTitle">本局结束</h2>
+              <p id="winnerText"></p>
+              <button id="playAgain" class="primary-command" type="button">再来一局</button>
+            </div>
+          </div>
+        </div>
+        <aside class="turn-panel">
+          <div class="room-strip">
+            <span>房间</span>
+            <button id="gameRoomCode" type="button" title="复制房间码">000000</button>
+            <button id="gameLeaveRoom" class="icon-command" type="button" aria-label="离开房间">×</button>
+          </div>
+          <section class="turn-control" aria-live="polite">
+            <p id="turnLabel">等待开局</p>
+            <button id="dice" class="dice" type="button" data-value="0" aria-label="骰子尚未掷出">
+              <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+            </button>
+            <strong id="actionLabel">等待服务端状态</strong>
+            <button id="rollDice" class="primary-command" type="button">掷骰子</button>
+            <div id="pieceChoices" class="piece-choices"></div>
+          </section>
+          <div class="rule-strip">
+            <span>6 起飞</span>
+            <span>同色跳 4 格</span>
+            <span>飞行线跨棋盘</span>
+            <span>超点反弹</span>
+          </div>
+        </aside>
+      </section>
+    </main>
+
+    <section id="profileLayer" class="profile-layer" hidden>
+      <form id="profileForm" class="profile-form" aria-labelledby="profileTitle">
+        <p class="section-label">PLAYER</p>
+        <h2 id="profileTitle">设置玩家资料</h2>
+        <label>
+          <span>昵称</span>
+          <input id="nickname" name="nickname" type="text" maxlength="16" autocomplete="nickname" required />
+        </label>
+        <fieldset>
+          <legend>头像颜色</legend>
+          <div id="avatarChoices" class="avatar-choices"></div>
+        </fieldset>
+        <p id="profileError" class="form-error" role="alert"></p>
+        <button class="primary-command" type="submit">保存并连接</button>
+        <button id="cancelProfile" class="quiet-command" type="button">取消</button>
+      </form>
+    </section>
+
+    <section id="ruleLayer" class="rule-layer" hidden>
+      <div class="rule-dialog" role="dialog" aria-modal="true" aria-labelledby="ruleTitle">
+        <header>
+          <div>
+            <p class="section-label">CLASSIC RULES</p>
+            <h2 id="ruleTitle">本局采用的飞行棋规则</h2>
+          </div>
+          <button id="closeRules" class="icon-command" type="button" aria-label="关闭规则">×</button>
+        </header>
+        <ol>
+          <li><strong>起飞：</strong>掷出 6，任选一架飞机从机场进入起飞格，并可继续掷骰子。</li>
+          <li><strong>跳跃：</strong>走完点数后落在己方颜色格，自动向前跳到下一格己方颜色格。</li>
+          <li><strong>飞行：</strong>落在带飞机标记的己方飞行格，沿虚线跨越棋盘，直接抵达对面出口。</li>
+          <li><strong>撞机：</strong>落点有对方飞机时，对方飞机返回机场；己方飞机可停在同一格。</li>
+          <li><strong>冲线：</strong>进入六格终点跑道后仍按点数移动；超过中心的步数会反向弹回。</li>
+          <li><strong>连续三个 6：</strong>本回合前两次 6 移动过且尚未到终点的飞机返回机场，随后换人。</li>
+        </ol>
+      </div>
+    </section>
+
+    <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+
+    <script src="../../src/hamsterBalance.js"></script>
+    <script src="../../src/storage.js"></script>
+    <script src="../../src/playerIdentity.js"></script>
+    <script src="../../src/multiplayerClient.js"></script>
+    <script type="module" src="game.js"></script>
+  </body>
+</html>

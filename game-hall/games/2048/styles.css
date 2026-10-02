@@ -1,0 +1,260 @@
+:root {
+  --gap: 10px;
+}
+
+.game-shell {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+}
+
+.playfield {
+  display: grid;
+  place-items: center;
+}
+
+.board {
+  --tile-size: calc((100% - (var(--gap) * 3)) / 4);
+  position: relative;
+  width: min(100%, 560px, calc(100vh - 128px));
+  aspect-ratio: 1;
+  margin: 0 auto;
+  padding: var(--gap);
+  border: 1px solid var(--arcade-line);
+  border-radius: var(--arcade-radius);
+  background:
+    linear-gradient(rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0)),
+    #233431;
+  box-shadow:
+    0 24px 50px rgba(0, 0, 0, 0.28),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+  outline: none;
+  overflow: hidden;
+  touch-action: none;
+}
+
+.board:focus-visible {
+  box-shadow:
+    0 24px 50px rgba(0, 0, 0, 0.28),
+    0 0 0 4px rgba(102, 217, 200, 0.3),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+}
+
+.cell-grid {
+  position: absolute;
+  inset: var(--gap);
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-template-rows: repeat(4, 1fr);
+  gap: var(--gap);
+}
+
+.cell {
+  border-radius: var(--arcade-radius);
+  background: rgba(255, 255, 255, 0.11);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.07);
+}
+
+.tile-layer {
+  position: absolute;
+  inset: var(--gap);
+}
+
+.tile {
+  --nudge-x: 0px;
+  --nudge-y: 0px;
+  --nudge-bounce-x: 0px;
+  --nudge-bounce-y: 0px;
+  position: absolute;
+  top: calc(var(--row) * (var(--tile-size) + var(--gap)));
+  left: calc(var(--col) * (var(--tile-size) + var(--gap)));
+  width: var(--tile-size);
+  height: var(--tile-size);
+  border: 0;
+  border-radius: var(--arcade-radius);
+  display: grid;
+  place-items: center;
+  background:
+    url("assets/tile-sheen.svg") center / cover no-repeat,
+    var(--tile-bg);
+  color: var(--tile-fg);
+  user-select: none;
+  font-size: clamp(28px, 10vw, 52px);
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: 0;
+  box-shadow:
+    0 12px 20px rgba(0, 0, 0, 0.22),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  transform: scale(1);
+  transition:
+    top 180ms cubic-bezier(0.2, 0.9, 0.25, 1),
+    left 180ms cubic-bezier(0.2, 0.9, 0.25, 1),
+    transform 120ms ease,
+    box-shadow 120ms ease,
+    filter 120ms ease;
+}
+
+.tile.blocked {
+  animation: nudge 170ms ease;
+}
+
+.tile.new {
+  animation: appear 180ms ease-out;
+}
+
+.tile.merged {
+  animation: pop 200ms ease-out;
+}
+
+.tile.blocked.new,
+.tile.blocked.merged,
+.tile.new.merged {
+  animation-name: nudge;
+}
+
+.tile[data-value="2"] {
+  --tile-bg: #d9ead3;
+  --tile-fg: #1e3d32;
+}
+
+.tile[data-value="4"] {
+  --tile-bg: #bde0fe;
+  --tile-fg: #17324d;
+}
+
+.tile[data-value="8"] {
+  --tile-bg: #ffd166;
+  --tile-fg: #45310a;
+}
+
+.tile[data-value="16"] {
+  --tile-bg: #ff9f1c;
+  --tile-fg: #3d2400;
+}
+
+.tile[data-value="32"] {
+  --tile-bg: #ff6b6b;
+  --tile-fg: #ffffff;
+}
+
+.tile[data-value="64"] {
+  --tile-bg: #ef476f;
+  --tile-fg: #ffffff;
+}
+
+.tile[data-value="128"] {
+  --tile-bg: #06d6a0;
+  --tile-fg: #083b31;
+}
+
+.tile[data-value="256"] {
+  --tile-bg: #118ab2;
+  --tile-fg: #ffffff;
+}
+
+.tile[data-value="512"] {
+  --tile-bg: #073b4c;
+  --tile-fg: #ffffff;
+}
+
+.tile[data-value="1024"],
+.tile[data-value="2048"],
+.tile[data-value="4096"],
+.tile[data-value="8192"] {
+  --tile-bg: #3a86ff;
+  --tile-fg: #ffffff;
+  font-size: clamp(22px, 7.5vw, 42px);
+}
+
+.status-panel {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  display: grid;
+  place-items: center;
+  padding: 18px;
+  background: rgba(17, 21, 20, 0.66);
+  backdrop-filter: blur(5px);
+}
+
+.status-panel[hidden] {
+  display: none;
+}
+
+.status-card {
+  width: min(76%, 300px);
+  padding: 24px;
+  border-radius: var(--arcade-radius);
+  background: #f3f5ef;
+  color: #15201e;
+  text-align: center;
+  box-shadow: 0 24px 55px rgba(0, 0, 0, 0.25);
+}
+
+.status-card span {
+  display: block;
+  color: #63706c;
+  font-size: 14px;
+}
+
+.status-card strong {
+  display: block;
+  margin: 6px 0 18px;
+  font-size: 48px;
+  line-height: 1;
+}
+
+.status-card button {
+  min-width: 112px;
+  min-height: 42px;
+  border: 0;
+  border-radius: var(--arcade-radius);
+  background: #15201e;
+  color: #ffffff;
+  cursor: pointer;
+  font-weight: 800;
+}
+
+@keyframes nudge {
+  0%,
+  100% {
+    transform: translate(0, 0);
+  }
+  45% {
+    transform: translate(var(--nudge-x), var(--nudge-y));
+  }
+  70% {
+    transform: translate(var(--nudge-bounce-x), var(--nudge-bounce-y));
+  }
+}
+
+@keyframes appear {
+  0% {
+    opacity: 0;
+    transform: scale(0.68);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes pop {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.08);
+  }
+}
+
+@media (max-width: 420px) {
+  :root {
+    --gap: 8px;
+  }
+
+  .settlement-actions {
+    grid-template-columns: 1fr;
+  }
+}

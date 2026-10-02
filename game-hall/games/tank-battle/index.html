@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#f7f6f0" />
+    <title>坦克大战 · CREDIUS ARCADE</title>
+    <link rel="stylesheet" href="../../src/game-shell.css" />
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="../../theme.css" />
+  </head>
+  <body>
+    <main class="game-shell">
+      <header class="game-topbar">
+        <button id="backLobby" class="shell-button" type="button" aria-label="返回大厅">←</button>
+        <div class="game-title">
+          <strong>坦克大战</strong>
+          <span>CREDIUS ARCADE · 动作</span>
+        </div>
+
+        <div class="game-stats" aria-label="战况">
+          <div class="stat-pill"><span>装甲</span><strong id="lives">5/5</strong></div>
+          <div class="stat-pill"><span>关卡</span><strong id="level">1</strong></div>
+          <div class="stat-pill"><span>敌军</span><strong id="enemyCount">0</strong></div>
+          <div class="stat-pill"><span>分数</span><strong id="score">0</strong></div>
+          <div class="stat-pill"><span>历史最高</span><strong id="best">0</strong></div>
+        </div>
+
+        <div class="game-actions">
+          <button id="pauseGame" class="shell-button text" type="button">暂停</button>
+          <button id="newGame" class="shell-button" type="button" aria-label="重新开始">↻</button>
+          <button id="soundGame" class="shell-button" type="button" aria-label="声音开关">♪</button>
+        </div>
+      </header>
+
+      <section class="playfield">
+        <div class="arena-wrap">
+          <canvas
+            id="battlefield"
+            width="576"
+            height="576"
+            tabindex="0"
+            role="application"
+            aria-label="坦克大战战场"
+          ></canvas>
+          <div id="statusPanel" class="status-panel" hidden>
+            <div class="status-card" role="status" aria-live="polite">
+              <span id="statusKicker"></span>
+              <strong id="statusTitle"></strong>
+              <button id="statusButton" type="button"></button>
+            </div>
+          </div>
+          <div id="settlementPanel" class="settlement-panel" hidden>
+            <div class="settlement-card" role="status" aria-live="polite">
+              <small id="settlementKicker">本局结束</small>
+              <h2 id="settlementTitle">成绩结算</h2>
+              <div class="settlement-grid">
+                <div class="settlement-metric"><span>本局得分</span><strong id="finalScore">0</strong></div>
+                <div class="settlement-metric"><span>历史最高</span><strong id="finalBest">0</strong></div>
+              </div>
+              <div class="settlement-actions">
+                <button id="playAgain" type="button">再玩一次</button>
+                <button id="shareResult" class="light" type="button">分享成绩</button>
+                <button id="settlementLobby" class="light" type="button">返回大厅</button>
+              </div>
+              <p id="shareOutput" class="share-output" aria-live="polite"></p>
+            </div>
+          </div>
+        </div>
+
+        <div class="control-panel" aria-label="触控操作">
+          <button class="pad-button pad-up" type="button" data-control="up" title="向上" aria-label="向上">↑</button>
+          <button class="pad-button pad-left" type="button" data-control="left" title="向左" aria-label="向左">←</button>
+          <button class="pad-button pad-down" type="button" data-control="down" title="向下" aria-label="向下">↓</button>
+          <button class="pad-button pad-right" type="button" data-control="right" title="向右" aria-label="向右">→</button>
+          <button class="fire-button" type="button" data-control="fire" title="开火" aria-label="开火">●</button>
+        </div>
+      </section>
+    </main>
+
+    <script src="../../src/hamsterBalance.js"></script>
+    <script src="../../src/storage.js"></script>
+    <script src="../../src/campaign.js"></script>
+    <script src="game.js"></script>
+  </body>
+</html>

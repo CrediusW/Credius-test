@@ -1,0 +1,134 @@
+.mine-layout {
+  display: grid;
+  gap: 12px;
+  place-items: center;
+}
+
+.board-wrap {
+  position: relative;
+  width: min(100%, 520px, calc(100vh - 190px));
+  min-width: 280px;
+  padding: 10px;
+  border: 1px solid var(--arcade-line);
+  border-radius: var(--arcade-radius);
+  background: #181e1c;
+  box-shadow: 0 24px 58px rgba(0, 0, 0, 0.3);
+}
+
+.mine-grid {
+  display: grid;
+  grid-template-columns: repeat(9, 1fr);
+  gap: 5px;
+  touch-action: manipulation;
+}
+
+.mine-cell {
+  aspect-ratio: 1;
+  min-width: 0;
+  border: 1px solid var(--arcade-line);
+  border-radius: 6px;
+  display: grid;
+  place-items: center;
+  background: var(--arcade-panel-2);
+  color: var(--arcade-ink);
+  cursor: pointer;
+  font-size: clamp(14px, 4vw, 20px);
+  font-weight: 900;
+}
+
+.mine-cell.revealed {
+  background: #eef3e9;
+  color: #1c2926;
+  cursor: default;
+}
+
+.mine-cell.flagged {
+  color: #f1b84b;
+}
+
+.mine-cell.mine-hit {
+  background: #ff6f7d;
+  color: #ffffff;
+}
+
+.mine-cell[data-count="1"] {
+  color: #2c79ff;
+}
+
+.mine-cell[data-count="2"] {
+  color: #167a55;
+}
+
+.mine-cell[data-count="3"],
+.mine-cell[data-count="4"],
+.mine-cell[data-count="5"],
+.mine-cell[data-count="6"],
+.mine-cell[data-count="7"],
+.mine-cell[data-count="8"] {
+  color: #b85e2c;
+}
+
+.hint {
+  width: min(100%, 520px);
+  margin: 0;
+  color: var(--arcade-muted);
+  font-size: 13px;
+  text-align: center;
+}
+
+.status-panel {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  display: grid;
+  place-items: center;
+  padding: 18px;
+  background: rgba(17, 21, 20, 0.68);
+  backdrop-filter: blur(5px);
+}
+
+.status-panel[hidden] {
+  display: none;
+}
+
+.status-card {
+  width: min(78%, 300px);
+  padding: 24px;
+  border-radius: var(--arcade-radius);
+  background: #f3f5ef;
+  color: #15201e;
+  text-align: center;
+}
+
+.status-card span {
+  display: block;
+  color: #63706c;
+  font-size: 14px;
+}
+
+.status-card strong {
+  display: block;
+  margin: 7px 0 18px;
+  font-size: 38px;
+}
+
+.status-card button {
+  min-width: 112px;
+  min-height: 42px;
+  border: 0;
+  border-radius: var(--arcade-radius);
+  background: #15201e;
+  color: #ffffff;
+  cursor: pointer;
+  font-weight: 800;
+}
+
+@media (max-width: 420px) {
+  .mine-grid {
+    gap: 4px;
+  }
+
+  .settlement-actions {
+    grid-template-columns: 1fr;
+  }
+}

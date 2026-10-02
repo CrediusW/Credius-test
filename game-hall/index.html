@@ -1,0 +1,259 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#f7f6f0" />
+    <title>闻风游戏大厅 · 闻风的奇妙天地</title>
+    <link rel="preload" href="assets/hamster/frames/idle/01.png" as="image" type="image/png" />
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="theme.css" />
+    <link rel="icon" href="../favicon.svg" />
+  </head>
+  <body>
+    <section id="authGate" class="auth-gate" aria-labelledby="authTitle" hidden>
+      <div class="auth-showcase" aria-hidden="true">
+        <div class="auth-showcase-copy">
+          <span class="auth-brand-mark">C</span>
+          <strong>闻风游戏大厅</strong>
+          <small>你的私人离线游戏厅</small>
+        </div>
+        <div class="auth-cover-strip">
+          <img src="assets/game-icons/tank-battle-v2.png" alt="" />
+          <img src="assets/game-icons/prince-adventure.svg" alt="" />
+          <img src="assets/game-icons/tetris.png" alt="" />
+        </div>
+      </div>
+      <div class="auth-panel">
+        <form id="authForm" class="auth-form" novalidate>
+          <p class="eyebrow">PRIVATE ACCESS</p>
+          <h1 id="authTitle">进入游戏厅</h1>
+          <p id="authIntro" class="auth-intro">输入这台设备上的私人账号。</p>
+          <label class="auth-field">
+            <span>账号</span>
+            <input id="authUsername" name="username" type="text" minlength="3" maxlength="24" autocomplete="username" autocapitalize="none" spellcheck="false" required />
+          </label>
+          <label class="auth-field">
+            <span>密码</span>
+            <input id="authPassword" name="password" type="password" minlength="8" maxlength="72" autocomplete="current-password" required />
+          </label>
+          <label id="authConfirmField" class="auth-field" hidden>
+            <span>确认密码</span>
+            <input id="authPasswordConfirm" name="password-confirm" type="password" minlength="8" maxlength="72" autocomplete="new-password" />
+          </label>
+          <label class="auth-password-toggle">
+            <input id="authShowPassword" type="checkbox" />
+            <span>显示密码</span>
+          </label>
+          <p id="authStatus" class="auth-status" role="status" aria-live="polite"></p>
+          <button id="authSubmit" class="auth-submit" type="submit">登录</button>
+          <button id="authReset" class="auth-reset" type="button" hidden>忘记密码，重新创建本机账号</button>
+          <p class="auth-privacy">账号只保存在本机；密码经过加盐哈希后保存，不会上传网络。</p>
+        </form>
+      </div>
+    </section>
+
+    <div class="app-shell">
+      <div id="drawerBackdrop" class="drawer-backdrop" hidden></div>
+
+      <aside id="sidebar" class="record-sidebar" aria-label="玩家记录侧边栏">
+        <section class="sidebar-card player-card">
+          <div class="player-mark" aria-hidden="true">C</div>
+          <div>
+            <label for="nicknameInput">本地玩家</label>
+            <input id="nicknameInput" type="text" maxlength="18" autocomplete="off" />
+          </div>
+        </section>
+
+        <section class="sidebar-stats" aria-label="玩家概览">
+          <div>
+            <span>总游玩</span>
+            <strong id="totalPlays">0</strong>
+          </div>
+          <div>
+            <span>总时长</span>
+            <strong id="totalPlayTime">0 分钟</strong>
+          </div>
+          <div>
+            <span>已体验</span>
+            <strong id="triedGames">0</strong>
+          </div>
+          <div>
+            <span>成就</span>
+            <strong id="achievementCount">0</strong>
+          </div>
+        </section>
+
+        <section class="sidebar-section">
+          <div class="sidebar-heading">
+            <h2>最高分榜</h2>
+            <label class="sort-control">
+              <span>排序</span>
+              <select id="recordSort">
+                <option value="recent">最近游玩</option>
+                <option value="score">最高分</option>
+                <option value="plays">游玩次数</option>
+                <option value="title">游戏名称</option>
+              </select>
+            </label>
+          </div>
+          <div id="scoreList" class="score-list"></div>
+        </section>
+
+        <nav class="quick-nav" aria-label="快捷入口">
+          <button type="button" data-action="continue">继续上次游戏</button>
+          <button type="button" data-action="shop">街机币商店</button>
+          <button type="button" data-action="favorites">我的收藏</button>
+          <button type="button" data-action="records">全部成绩</button>
+          <button type="button" data-action="achievements">成就</button>
+          <button type="button" data-action="settings">设置</button>
+          <button class="native-only" type="button" data-auth-lock>锁定应用</button>
+          <button type="button" data-action="about">关于作者</button>
+        </nav>
+
+        <p class="sidebar-footer">Made by 闻风 · Credius</p>
+      </aside>
+
+      <main class="hall" aria-label="CREDIUS ARCADE 游戏大厅">
+        <header class="topbar">
+          <button id="menuButton" class="icon-button menu-button" type="button" aria-label="展开侧边栏">
+            ☰
+          </button>
+          <a class="brand" href="./" aria-label="CREDIUS ARCADE 首页">
+            <span class="brand-symbol" aria-hidden="true">C</span>
+            <span>
+              <strong>闻风游戏大厅</strong>
+              <small>CREDIUS ARCADE</small>
+            </span>
+          </a>
+          <div class="top-actions">
+            <a class="portal-home" href="../">返回主站 ↗</a>
+            <button id="searchToggle" class="icon-button" type="button" aria-label="搜索游戏">⌕</button>
+            <button id="soundToggle" class="icon-button" type="button" aria-label="声音开关">♪</button>
+            <button id="settingsButton" class="icon-button" type="button" aria-label="设置">⚙</button>
+          </div>
+        </header>
+
+        <section id="searchPanel" class="search-panel" hidden>
+          <label>
+            <span>搜索游戏</span>
+            <input id="searchInput" type="search" placeholder="2048、坦克、俄罗斯方块..." autocomplete="off" />
+          </label>
+        </section>
+
+        <section id="hamsterPanel" class="hamster-panel" aria-label="Credius Hamster 闻风仓鼠屋" aria-live="polite"></section>
+
+        <section class="welcome-panel">
+          <div class="welcome-copy">
+            <p class="eyebrow">Curated by 闻风</p>
+            <h1>今晚想玩点什么？</h1>
+            <p>挑一款游戏，慢慢刷新纪录。成绩、闯关进度和仓鼠伙伴保存在当前浏览器。</p>
+            <div class="welcome-actions">
+              <button id="quickStartButton" class="welcome-primary-action" type="button" data-start-game="2048">
+                <span>快速开始</span>
+                <strong id="quickStartGameName">2048</strong>
+              </button>
+              <a href="#gameGrid">浏览全部游戏</a>
+            </div>
+          </div>
+          <div class="welcome-meta">
+            <div>
+              <span>最近游玩</span>
+              <strong id="recentGameName">暂无</strong>
+              <small id="recentGameScore">还没有成绩</small>
+            </div>
+            <div>
+              <span>全部游戏</span>
+              <strong id="allGameCount">0</strong>
+              <small>12 款即开即玩 · 2 款待接入联机</small>
+            </div>
+            <div>
+              <span>已解锁成就</span>
+              <strong id="homeAchievementCount">0</strong>
+              <small>本机记录</small>
+            </div>
+          </div>
+        </section>
+
+        <section class="campaign-overview" aria-label="闯关进度与街机币">
+          <div class="campaign-overview-copy">
+            <p class="eyebrow">ARCADE JOURNEY</p>
+            <h2>闯关手册</h2>
+            <p>每款游戏都有专属关卡。刷新高分可补齐星星，首次升星获得更多街机币。</p>
+          </div>
+          <div class="campaign-overview-stats">
+            <div><span>街机币</span><strong id="campaignCoins">0</strong></div>
+            <div><span>累计星星</span><strong id="campaignStars">0 / 396</strong></div>
+            <div><span>已通关</span><strong id="campaignCleared">0 / 132</strong></div>
+          </div>
+          <button class="campaign-shop-button" type="button" data-action="shop">
+            <span aria-hidden="true">兑换</span>
+            <strong>道具商店</strong>
+          </button>
+        </section>
+
+        <nav id="categoryScroller" class="category-scroller" aria-label="游戏分类"></nav>
+
+        <p class="portal-service-note">飞行棋与四国军棋需要联机服务器，当前仅提供介绍；其余 12 款可直接游玩。</p>
+
+        <section class="library-heading">
+          <div>
+            <h2>游戏收藏</h2>
+            <p id="resultCount">0 个游戏</p>
+          </div>
+          <span>PLAY · EXPLORE · UNWIND</span>
+        </section>
+
+        <section id="gameGrid" class="game-grid" aria-live="polite"></section>
+      </main>
+    </div>
+
+    <section id="detailLayer" class="detail-layer" aria-label="游戏详情" hidden>
+      <div class="detail-card" role="dialog" aria-modal="true" aria-labelledby="detailTitle">
+        <button id="closeDetail" class="icon-button detail-close" type="button" aria-label="关闭详情">×</button>
+        <div id="detailContent"></div>
+      </div>
+    </section>
+
+    <section id="utilityLayer" class="detail-layer" aria-label="设置与成绩" hidden>
+      <div class="detail-card utility-card" role="dialog" aria-modal="true" aria-labelledby="utilityTitle">
+        <button id="closeUtility" class="icon-button detail-close" type="button" aria-label="关闭">×</button>
+        <div id="utilityContent"></div>
+      </div>
+    </section>
+
+    <section id="playOverlay" class="play-overlay" aria-label="游戏窗口" hidden>
+      <div class="play-toolbar">
+        <button id="closePlayer" class="icon-button" type="button" aria-label="返回大厅">←</button>
+        <div>
+          <strong id="playerTitle">游戏</strong>
+          <span id="playerMode">离线运行中</span>
+        </div>
+        <div id="compactHamsterSlot" class="compact-hamster-slot"></div>
+        <button id="fullscreenButton" class="icon-button fullscreen-button" type="button" aria-label="进入全屏" title="进入全屏">⛶</button>
+        <a id="openStandalone" class="toolbar-link" href="games/2048/index.html" target="_blank" rel="noreferrer" aria-label="在新窗口独立打开">独立打开</a>
+      </div>
+      <div class="player-stage">
+        <div id="playerLoading" class="player-loading" role="status" aria-live="polite">
+          <span class="player-loading-mark" aria-hidden="true">C</span>
+          <strong>正在启动游戏</strong>
+          <small>本地资源加载中</small>
+        </div>
+        <iframe id="gameFrame" title="游戏运行窗口" loading="eager" allow="fullscreen"></iframe>
+      </div>
+    </section>
+
+    <aside id="roamingHamster" class="roaming-hamster" aria-label="可拖动的闻风仓鼠伙伴" hidden></aside>
+
+    <script src="src/hamsterBalance.js"></script>
+    <script src="src/storage.js"></script>
+    <script src="src/localAuth.js"></script>
+    <script src="src/campaign.js"></script>
+    <script src="src/versionManifest.js"></script>
+    <script src="src/gameRegistry.js"></script>
+    <script src="assets/vendor/motion/motion-utils-13.3.0.js"></script>
+    <script src="assets/vendor/motion/motion-dom-13.3.0.js"></script>
+    <script src="src/hamsterMotion.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>

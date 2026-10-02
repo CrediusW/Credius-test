@@ -5,6 +5,7 @@
 - `/`：米白与森林绿风格的个人主页。
 - `/reader.html?book=silicon-world`：统一书房入口，保留三个原始电子书地址。
 - `/joblens/`：简历与 JD 匹配、本地面试练习、PDF 文本解析、作品集草稿与报告导出。
+- `/game-hall/`：基于本地游戏大厅 1.8.0 的主站适配版 1.8.1，保留 14 款游戏资源、仓鼠与存档，12 款单机可用；飞行棋和四国军棋依赖原 Node WebSocket 服务，当前静态主站未托管该服务。原本地大厅不受此副本影响。
 - `/ai-voice-pet/`：小元的房间，支持触摸、文字聊天与浏览器语音；保留原有本地设置。
 - 主页 AI 实验区收录 DeepSeek 的个人空间，书架新增《投资操作系统》；两个入口均打开原站，保留原有互动与阅读体验。
 
@@ -14,6 +15,7 @@
 python3 -m http.server 8767 --bind 127.0.0.1
 # 另一个终端（需已有 Playwright 与 Chrome）
 node checks.cjs
+SITE_URL=http://127.0.0.1:8767 node game-hall-checks.cjs
 ```
 
 检查脚本可通过 `NODE_PATH` 使用已安装的 Playwright，可通过 `CHROME_PATH` 指定 Chrome，`SITE_URL` 指定待测站点。它验证桌面/手机布局、书籍切换、简历匹配、面试、PDF 解析、资料备份与小元对话/触摸。

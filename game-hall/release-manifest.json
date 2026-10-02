@@ -1,0 +1,593 @@
+{
+  "schemaVersion": 1,
+  "release": {
+    "version": "1.8.1",
+    "name": "个人站游戏大厅",
+    "date": "2026-10-03",
+    "status": "stable"
+  },
+  "modules": [
+    {
+      "id": "arcade-shell",
+      "name": "游戏大厅与全局界面",
+      "version": "0.6.1",
+      "paths": [
+        "index.html",
+        "app.js",
+        "styles.css",
+        "theme.css",
+        "assets/app"
+      ]
+    },
+    {
+      "id": "local-auth",
+      "name": "Android 本机账号",
+      "version": "1.0.0",
+      "paths": [
+        "src/localAuth.js",
+        "tests/local-auth.test.mjs"
+      ]
+    },
+    {
+      "id": "local-storage",
+      "name": "本地存档",
+      "version": "0.2.0",
+      "paths": [
+        "src/storage.js",
+        "src/types.d.ts"
+      ]
+    },
+    {
+      "id": "hamster",
+      "name": "闻风仓鼠伙伴",
+      "version": "0.4.0",
+      "paths": [
+        "src/hamsterBalance.js",
+        "src/hamsterMotion.js",
+        "assets/hamster",
+        "assets/vendor/motion",
+        "tests/hamster-motion.test.mjs"
+      ]
+    },
+    {
+      "id": "campaign",
+      "name": "关卡、星级与街机币",
+      "version": "1.3.0",
+      "paths": [
+        "src/campaign.js"
+      ]
+    },
+    {
+      "id": "game-registry",
+      "name": "游戏注册表",
+      "version": "1.5.1",
+      "paths": [
+        "src/gameRegistry.js"
+      ]
+    },
+    {
+      "id": "game-shell",
+      "name": "独立游戏壳层",
+      "version": "1.0.1",
+      "paths": [
+        "src/game-shell.css",
+        "games"
+      ]
+    },
+    {
+      "id": "release-system",
+      "name": "构建、发布与回滚",
+      "version": "1.6.1",
+      "paths": [
+        "package.json",
+        "scripts/build.mjs",
+        "scripts/build-android.mjs",
+        "scripts/smoke.mjs",
+        "capacitor.config.json",
+        "android",
+        "发布稳定版本.command",
+        "安装常驻服务.command",
+        "回滚上一个稳定版本.command"
+      ]
+    },
+    {
+      "id": "multiplayer-core",
+      "name": "玩家身份与多人房间服务",
+      "version": "1.7.0",
+      "paths": [
+        "src/playerIdentity.js",
+        "src/multiplayerClient.js",
+        "src/flightChessBoardMap.js",
+        "src/fourArmyChessBoardMap.js",
+        "src/fourArmyChessPieces.js",
+        "src/fourArmyChessDeployment.js",
+        "server",
+        "tests/flight-chess-board-map.test.mjs",
+        "tests/ludo-rules.test.mjs",
+        "tests/ludo-animation-controller.test.mjs",
+        "tests/multiplayer-room.test.mjs",
+        "tests/multiplayer-websocket.test.mjs",
+        "tests/four-army-board-map.test.mjs",
+        "tests/four-army-rules.test.mjs",
+        "tests/four-army-room.test.mjs",
+        "tests/four-army-websocket.test.mjs",
+        "tests/four-army-bot-websocket.test.mjs",
+        "tests/four-army-replay.test.mjs"
+      ]
+    }
+  ],
+  "games": [
+    {
+      "id": "four-army-chess",
+      "name": "四国军棋",
+      "version": "1.4.0"
+    },
+    {
+      "id": "ludo",
+      "name": "飞行棋",
+      "version": "1.2.0"
+    },
+    {
+      "id": "2048",
+      "name": "2048",
+      "version": "1.0.0"
+    },
+    {
+      "id": "happy-match",
+      "name": "开心消消乐",
+      "version": "1.1.0"
+    },
+    {
+      "id": "tank-battle",
+      "name": "坦克大战",
+      "version": "1.1.0"
+    },
+    {
+      "id": "last-stand",
+      "name": "Last Stand",
+      "version": "1.1.0"
+    },
+    {
+      "id": "tetris",
+      "name": "俄罗斯方块",
+      "version": "1.1.0"
+    },
+    {
+      "id": "snake",
+      "name": "贪吃蛇",
+      "version": "1.0.0"
+    },
+    {
+      "id": "minesweeper",
+      "name": "扫雷",
+      "version": "1.0.0"
+    },
+    {
+      "id": "breakout",
+      "name": "打砖块",
+      "version": "1.1.0"
+    },
+    {
+      "id": "sudoku",
+      "name": "数独",
+      "version": "1.0.0"
+    },
+    {
+      "id": "sokoban",
+      "name": "推箱子",
+      "version": "1.0.0"
+    },
+    {
+      "id": "space-shooter",
+      "name": "太空射击",
+      "version": "1.0.0"
+    },
+    {
+      "id": "super-mary",
+      "name": "王子历险记",
+      "version": "2.0.0"
+    }
+  ],
+  "releases": [
+    {
+      "version": "1.8.1",
+      "date": "2026-10-03",
+      "title": "个人站游戏大厅",
+      "changes": [
+        "基于 1.8.0 接入个人站，统一米白与森林绿界面，增加返回主站入口。",
+        "保留全部游戏资源、仓鼠与本地存档；12 款单机可玩，2 款多人游戏标注待接入联机服务。"
+      ],
+      "changedModules": [
+        "arcade-shell",
+        "game-registry",
+        "game-shell"
+      ],
+      "changedGames": []
+    },
+    {
+      "version": "1.8.0",
+      "date": "2026-09-20",
+      "title": "四国军棋轨迹与交锋反馈",
+      "changes": [
+        "四方阵地最后一排全部改为普通道路，铁路在倒数第二排横轨终止，最后一排棋子必须先走一步进入铁路。",
+        "服务端为每次铁路行棋下发实际经过的完整节点，棋子动画沿轨道逐段运行，不再从起点直线飞向终点。",
+        "吃子、进攻失败和司令阵亡分别使用拳击重击、弹回与低沉警报音效，同归于尽保留独立撞击反馈。",
+        "敌方暗棋标记面板按司军师、旅团营、连排工和特殊判断分层排列，并优化手机触控与当前标记状态。",
+        "新增最后一排非铁路、跨区移动轨迹和司令阵亡公开事件的规则回归测试。"
+      ],
+      "changedModules": [
+        "multiplayer-core"
+      ],
+      "changedGames": [
+        "four-army-chess"
+      ]
+    },
+    {
+      "version": "1.7.1",
+      "date": "2026-09-20",
+      "title": "四国军棋平滑轨道切线修正",
+      "changes": [
+        "普通棋子可从阵地右侧铁路沿平滑弯轨一路进入相邻阵地外侧铁路，途中无阻挡时可一步走到底。",
+        "同一侧边铁路也可保持直线穿过中央铁路，直达正对面的阵地侧边。",
+        "阵地正面横轨与上述切线通道只在圆形节点相交，普通棋子从横轨抵达节点后仍须停一手才能换线。",
+        "新增平滑弯轨、中央贯通与交叉点停手的服务端回归测试。"
+      ],
+      "changedModules": [
+        "multiplayer-core"
+      ],
+      "changedGames": [
+        "four-army-chess"
+      ]
+    },
+    {
+      "version": "1.7.0",
+      "date": "2026-09-20",
+      "title": "四国军棋路口与战术 AI",
+      "changes": [
+        "普通棋子进入铁路转向节点后必须停一手，下一回合才能选择弯轨、相邻阵地正面铁路或中央铁路。",
+        "已经站在转向节点的普通棋子可沿弯轨扫过相邻阵地外侧铁路，但不能在同一步再次换线。",
+        "机器人新增公开信息下的军旗与大本营推进、残局攻旗、工程兵排雷、强敌记忆和炸弹针对策略。",
+        "机器人会惩罚原路折返与重复路线，保护已知弱于目标的棋子，并用小棋主动推进制造高价值棋子的伪装压力。",
+        "新增转向点停手、相邻阵地换线、暗棋信息隔离、直接夺旗、强敌应对和残局防往返测试。"
+      ],
+      "changedModules": [
+        "multiplayer-core"
+      ],
+      "changedGames": [
+        "four-army-chess"
+      ]
+    },
+    {
+      "version": "1.6.1",
+      "date": "2026-09-19",
+      "title": "四国军棋弯轨规则修正",
+      "changes": [
+        "普通棋子可沿固定弯轨进入相邻阵地侧边并继续进攻，恢复弯角铁路的连续通行。",
+        "普通棋子不再把四方靠中央铁路当作闭合外环，禁止借外围节点环形绕行。",
+        "铁路绘制与工兵连通网络保持不变，工兵仍可在连通铁路上自由转弯。",
+        "新增弯轨侧攻、禁止环绕和中央直行回归测试。"
+      ],
+      "changedModules": [
+        "multiplayer-core"
+      ],
+      "changedGames": [
+        "four-army-chess"
+      ]
+    },
+    {
+      "version": "1.6.0",
+      "date": "2026-09-16",
+      "title": "仓鼠弹簧动作升级",
+      "changes": [
+        "参考 Motion 与 Rive 的状态混合思路，为仓鼠加入本地弹簧运动控制器，并保留原有写实形象与动作帧。",
+        "跑步新增左右重心、前倾、腾空和落地压缩，跳跃新增预备下蹲、滞空与回弹，翻滚加入完整角速度与影子变化。",
+        "四帧与六帧动作由硬切换改为短暂交叠混合，减少四肢姿态切换时的跳帧感。",
+        "动画在页面隐藏或仓鼠离开视口时暂停，并继续遵循完整、简化和关闭动画设置。"
+      ],
+      "changedModules": [
+        "arcade-shell",
+        "hamster"
+      ],
+      "changedGames": []
+    },
+    {
+      "version": "1.5.0",
+      "date": "2026-09-16",
+      "title": "四国军棋战术完善",
+      "changes": [
+        "四国军棋机器人改用李云龙、楚云飞等军事人物昵称，并在轮到机器人时等待两秒再走子。",
+        "真人回合新增服务端权威的 30 秒倒计时、当前玩家姓名流光和累计超时判负；前三次超时跳过，第四次自动投降。",
+        "开局新增亮剑突击、铁桶防线与工兵奇袭三套布阵方案，玩家可合法互换棋子并确认后锁定阵型。",
+        "进攻成功、进攻失败和双方同归于尽分别使用不同的棋盘动效、节奏和合成音效。",
+        "敌方暗棋支持司至排、大小判断及工兵、炸弹、地雷、军旗等本机私有标注。",
+        "中央 3×3 铁路扩展到阵地第 1、3、5 列，恢复南北贯通和外环弯轨向侧翼直达的标准四国军棋路网。",
+        "冒烟检查纳入新增布阵模块，联机服务支持以 ARCADE_PORT 启动临时验收端口且不改变默认 5173 入口。"
+      ],
+      "changedModules": [
+        "release-system",
+        "multiplayer-core"
+      ],
+      "changedGames": [
+        "four-army-chess"
+      ]
+    },
+    {
+      "version": "1.4.0",
+      "date": "2026-09-05",
+      "title": "四国军棋机器人补位",
+      "changes": [
+        "四国军棋房主可在等待房间添加或移除机器人，单人也能补齐四席后开局。",
+        "机器人以服务端军棋规则挑选合法行动，不把客户端或对手暗棋军衔作为决策依据。",
+        "等待房间新增机器人状态、移除入口与手机触控尺寸，开局条件把机器人视为自动准备。",
+        "新增四席机器人房间、合法 AI 行棋和 WebSocket 自动回合测试。",
+        "稳定发布脚本改为执行项目完整测试集，避免新增游戏专项测试漏过发布门禁。",
+        "常驻服务发布会复制多人规则共享模块，并等待旧 LaunchAgent 完全卸载后再注册新版。"
+      ],
+      "changedModules": [
+        "release-system",
+        "multiplayer-core"
+      ],
+      "changedGames": [
+        "four-army-chess"
+      ]
+    },
+    {
+      "version": "1.3.0",
+      "date": "2026-09-03",
+      "title": "四国军棋四人暗战",
+      "changes": [
+        "新增四人联机四国陆战棋，对家组成同盟并通过六位房间码进入同一战局。",
+        "服务端生成四方合法阵型并权威校验公路、铁路、工兵转弯、行营、大本营、地雷、炸弹、军旗和大小判定。",
+        "对局中每名玩家只看到自己的军衔；司令阵亡后亮出该方军旗，终局后才公开全部棋子。",
+        "新增逐步明棋复盘，可查看初始阵型和每一步移动、交锋、淘汰与军旗失守。",
+        "大厅新增四国军棋入口和本地封面，手机界面以方形棋盘、四方状态和战况面板为核心。"
+      ],
+      "changedModules": [
+        "game-registry",
+        "release-system",
+        "multiplayer-core"
+      ],
+      "changedGames": [
+        "four-army-chess"
+      ]
+    },
+    {
+      "version": "1.2.0",
+      "date": "2026-09-03",
+      "title": "飞行棋拓扑与动画升级",
+      "changes": [
+        "飞行棋建立共享的 52 格主路线数据表，统一四方起飞点、归航入口、同色跳跃、跨棋盘飞行与终点跑道。",
+        "棋盘改为外圈四色规律交错、四角机场和中央十字终点，并新增 ?debugFlightChess=true 格子调试标注。",
+        "服务端为掷骰、逐格移动、跳跃、飞行、撞机、返航和完成生成语义动作序列，所有客户端按同一序列播放。",
+        "手机界面改为玩家状态、方形大棋盘和回合控制纵向排列；骰子可直接点击，多棋可选并在棋盘上发光提示。",
+        "新增逐格移动、弹跳、飞行尾迹、撞机震动、返航与终点庆祝动画，动画期间锁定重复输入。"
+      ],
+      "changedModules": [
+        "release-system",
+        "multiplayer-core"
+      ],
+      "changedGames": [
+        "ludo"
+      ]
+    },
+    {
+      "version": "1.1.0",
+      "date": "2026-09-02",
+      "title": "经典飞行棋与机器人",
+      "changes": [
+        "飞行棋改为中国经典棋盘结构，加入四角机场、四色环形航线、终点跑道和跨棋盘飞行线。",
+        "规则新增同色跳四格、飞行捷径、终点超点反弹和连续三个六的服务端判定。",
+        "房主可在等待房间添加或移除机器人，机器人由服务端自动掷骰并按完成、撞机、飞行和跳跃优先级走棋。",
+        "大厅封面和玩法说明同步更新，并补充机器人房间与自动行动联机测试。"
+      ],
+      "changedModules": [
+        "game-registry",
+        "multiplayer-core"
+      ],
+      "changedGames": [
+        "ludo"
+      ]
+    },
+    {
+      "version": "1.0.0",
+      "date": "2026-09-02",
+      "title": "飞行棋联机基础版",
+      "changes": [
+        "新增 2 至 4 人飞行棋，支持创建房间、6 位房间码、准备、开局、离开和再来一局。",
+        "新增稳定匿名玩家身份，玩家只需设置昵称和头像，本机重开后继续使用同一身份。",
+        "新增同端口 WebSocket 权威服务端，骰子、合法走子、同色跳跃、撞机、回合与胜负统一由服务端确认。",
+        "棋局操作带 expectedVersion，服务端拒绝抢回合、重复点击和过期版本操作。",
+        "房间与棋局快照支持本地持久化，断线和页面恢复后自动回到原房间。"
+      ],
+      "changedModules": [
+        "arcade-shell",
+        "game-registry",
+        "release-system",
+        "multiplayer-core"
+      ],
+      "changedGames": [
+        "ludo"
+      ]
+    },
+    {
+      "version": "0.9.0",
+      "date": "2026-08-18",
+      "title": "Android 私人游戏厅",
+      "changes": [
+        "新增 Capacitor Android 原生外壳，复用唯一大厅静态包和同一设备存档空间。",
+        "Android 首次启动可创建本机账号，后续使用 PBKDF2 加盐哈希验证密码，并支持手动锁定。",
+        "登录页、侧边栏、设置页和游戏窗口完成手机安全区、触控尺寸及超窄屏适配。",
+        "Android 关闭云备份与明文网络访问，保持离线运行，并在游戏期间保持屏幕常亮。",
+        "新增一键同步 Android 工程与生成调试 APK 的构建流程。"
+      ],
+      "changedModules": [
+        "arcade-shell",
+        "local-auth",
+        "release-system"
+      ],
+      "changedGames": []
+    },
+    {
+      "version": "0.8.1",
+      "date": "2026-08-15",
+      "title": "发布预检完整性修正",
+      "changes": [
+        "正式发布流程补跑王子历险记世界规则测试，避免大型关卡升级绕过专属验证。",
+        "正式发布流程补跑 Last Stand 关卡测试，确保五区战役配置在构建前完整校验。",
+        "重新生成版本文档与带版本清单的静态发布候选包。"
+      ],
+      "changedModules": [
+        "release-system"
+      ],
+      "changedGames": []
+    },
+    {
+      "version": "0.8.0",
+      "date": "2026-08-11",
+      "title": "王子历险记全面升级",
+      "changes": [
+        "原超级玛丽更名为原创横版平台游戏王子历险记，并更新大厅封面、标题与玩法说明。",
+        "加入巡逻、跳跃、飞行、远程与精英五类敌人，以及三阶段、三点生命的雷霆巨兽 Boss。",
+        "地图改为手工节奏关卡，新增移动与坠落平台、弹簧、尖刺、移动危险物、高低路线和秘密区域。",
+        "新增护盾、疾风靴、二段跳、金币磁铁与无敌星，以及金币串、连击反馈和每关三枚太阳金币。",
+        "新增隐藏砖块、双检查点、传送门终点、金币/大金币/用时结算和完整受击、粒子、音效、震动反馈。"
+      ],
+      "changedModules": [
+        "campaign",
+        "game-registry"
+      ],
+      "changedGames": [
+        "super-mary"
+      ]
+    },
+    {
+      "version": "0.7.0",
+      "date": "2026-08-11",
+      "title": "坦克大战装甲交锋",
+      "changes": [
+        "坦克大战更换为超写实双坦克战场封面，中央使用金属质感中文标题。",
+        "我方与敌方坦克分别采用 T-72 与 M1 风格轮廓，并新增分段装甲血条。",
+        "我方装甲可承受五次命中，敌方装甲可承受三次命中。"
+      ],
+      "changedModules": [
+        "game-registry"
+      ],
+      "changedGames": [
+        "tank-battle"
+      ]
+    },
+    {
+      "version": "0.6.0",
+      "date": "2026-08-10",
+      "title": "开心消消乐十关目标赛",
+      "changes": [
+        "开心消消乐达到左侧目标分后立即结算通关，不再强制耗尽剩余步数或技能。",
+        "星光果园由五关扩展为十关，新增月光蘑菇林、水晶矿洞、云端列车、龙焰山谷和星河王座。",
+        "后五关各自提供三种主题技能，并重新平衡十关目标分成长曲线。"
+      ],
+      "changedModules": [
+        "campaign",
+        "game-registry"
+      ],
+      "changedGames": [
+        "happy-match"
+      ]
+    },
+    {
+      "version": "0.5.0",
+      "date": "2026-08-02",
+      "title": "仓鼠生活场景与一键互动",
+      "changes": [
+        "大厅和仓鼠屋始终使用温馨写实环境，并按进食、玩耍、洗澡、睡觉、工作和学习自动切换场景。",
+        "新增温暖客厅、食物餐角和玩具房三张本地场景素材。",
+        "漂浮仓鼠点击菜单改为一键喂食、一键洗澡、一键玩耍和睡觉或叫醒。",
+        "窄布局隐藏状态卡第二行描述，保留名称与进度条，减少文字拥挤。"
+      ],
+      "changedModules": [
+        "arcade-shell",
+        "hamster"
+      ],
+      "changedGames": []
+    },
+    {
+      "version": "0.4.0",
+      "date": "2026-08-02",
+      "title": "Last Stand 五区战役",
+      "changes": [
+        "Last Stand 新增五关选关与顺序解锁流程，通关区域 Boss 后开启下一战区。",
+        "五关分别采用边境、冰原、油田、暴雨港区和熔炉主题，并加入对应天气与地标。",
+        "每关保持前期整备、后期尸潮的节奏，逐关提高敌人密度、耐久、速度与 Boss 强度。"
+      ],
+      "changedModules": [
+        "campaign"
+      ],
+      "changedGames": [
+        "last-stand"
+      ]
+    },
+    {
+      "version": "0.3.0",
+      "date": "2026-08-02",
+      "title": "俄罗斯方块三关挑战",
+      "changes": [
+        "俄罗斯方块删除行前会再次验证该行确实填满，避免过期动画状态误删不完整底行。",
+        "俄罗斯方块改为连续三关，每关消除 20 行进入下一关，并逐关提升下落速度。"
+      ],
+      "changedModules": [],
+      "changedGames": [
+        "tetris"
+      ]
+    },
+    {
+      "version": "0.2.0",
+      "date": "2026-07-31",
+      "title": "闻风仓鼠伙伴与版本治理",
+      "changes": [
+        "仓鼠升级为可拖动的全局伙伴，新增生活场景、动作、学习与高级工作解锁。",
+        "仓鼠存档升级到版本 2，并保留对旧存档的安全迁移。",
+        "打砖块完成五关重制，因此独立游戏版本定为 1.1.0。",
+        "建立模块和游戏独立版本、发布清单、变更日志及可识别版本的回滚备份。"
+      ],
+      "changedModules": [
+        "arcade-shell",
+        "local-storage",
+        "hamster",
+        "release-system"
+      ],
+      "changedGames": [
+        "breakout"
+      ]
+    },
+    {
+      "version": "0.1.0",
+      "date": "2026-07-30",
+      "title": "离线游戏厅基线",
+      "changes": [
+        "建立本地优先的游戏大厅、游戏注册表、共用存档、关卡与成绩系统。",
+        "收录十二款可离线运行的小游戏。"
+      ],
+      "changedModules": [
+        "arcade-shell",
+        "local-storage",
+        "campaign",
+        "game-registry",
+        "game-shell"
+      ],
+      "changedGames": [
+        "2048",
+        "happy-match",
+        "tank-battle",
+        "last-stand",
+        "tetris",
+        "snake",
+        "minesweeper",
+        "breakout",
+        "sudoku",
+        "sokoban",
+        "space-shooter",
+        "super-mary"
+      ]
+    }
+  ],
+  "builtAt": "2026-10-02T20:37:11.862Z"
+}

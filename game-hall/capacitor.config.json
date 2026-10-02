@@ -1,0 +1,6 @@
+{
+  "appId": "com.credius.arcade",
+  "appName": "CREDIUS ARCADE",
+  "webDir": "dist",
+  "bundledWebRuntime": false
+}

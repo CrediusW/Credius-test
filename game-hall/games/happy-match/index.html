@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#2b174d" />
+    <title>开心消消乐 · CREDIUS ARCADE</title>
+    <link rel="stylesheet" href="../../src/game-shell.css" />
+    <link rel="stylesheet" href="styles.css?v=2" />
+    <link rel="stylesheet" href="../../theme.css" />
+  </head>
+  <body>
+    <main class="game-shell match-shell">
+      <header class="game-topbar">
+        <button id="backLobby" class="shell-button" type="button" aria-label="返回大厅">←</button>
+        <div class="game-title">
+          <strong>开心消消乐</strong>
+          <span id="levelName">星光果园 · 第 1 关</span>
+        </div>
+        <div class="game-stats" aria-label="游戏状态">
+          <div class="stat-pill">
+            <span>分数</span>
+            <strong id="score">0</strong>
+          </div>
+          <div class="stat-pill">
+            <span>目标</span>
+            <strong id="target">600</strong>
+          </div>
+          <div class="stat-pill">
+            <span>剩余步数</span>
+            <strong id="moves">20</strong>
+          </div>
+          <div class="stat-pill">
+            <span>最高分</span>
+            <strong id="best">0</strong>
+          </div>
+        </div>
+        <div class="game-actions">
+          <button id="pauseGame" class="shell-button text" type="button">暂停</button>
+          <button id="newGame" class="shell-button" type="button" aria-label="重新开始">↻</button>
+          <button id="soundGame" class="shell-button" type="button" aria-label="声音开关">♪</button>
+        </div>
+      </header>
+
+      <section class="match-stage">
+        <aside class="mission-card" aria-label="本关任务">
+          <div>
+            <small>LEVEL MISSION</small>
+            <h1 id="missionTitle">晨露初醒</h1>
+            <p id="missionText">交换相邻果冻，凑齐三个同色。</p>
+          </div>
+          <div class="progress-track" aria-label="目标进度">
+            <span id="progressBar"></span>
+          </div>
+          <p id="progressText">还差 600 分</p>
+        </aside>
+
+        <div class="board-wrap">
+          <div
+            id="board"
+            class="match-board"
+            tabindex="0"
+            role="application"
+            aria-label="开心消消乐 8 乘 8 棋盘"
+          ></div>
+          <div id="fxLayer" class="fx-layer" aria-hidden="true"></div>
+          <div id="toast" class="game-toast" role="status" aria-live="polite" hidden></div>
+          <div id="statusPanel" class="settlement-panel" hidden>
+            <div class="settlement-card" role="dialog" aria-modal="true" aria-labelledby="statusTitle">
+              <small id="statusKicker">暂停</small>
+              <h2 id="statusTitle">果园等你回来</h2>
+              <p id="statusMessage">棋盘已经暂停。</p>
+              <div class="settlement-grid">
+                <div class="settlement-metric">
+                  <span>本关得分</span>
+                  <strong id="finalScore">0</strong>
+                </div>
+                <div class="settlement-metric">
+                  <span>目标分数</span>
+                  <strong id="finalTarget">600</strong>
+                </div>
+              </div>
+              <div class="settlement-actions">
+                <button id="primaryAction" type="button">继续游戏</button>
+                <button id="retryAction" class="light" type="button">重新挑战</button>
+                <button id="lobbyAction" class="light" type="button">返回大厅</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <aside class="skill-card" aria-label="本关技能选择">
+          <div class="skill-card-heading">
+            <div>
+              <small>SKILL LAB</small>
+              <h2>技能实验室</h2>
+            </div>
+            <strong id="skillCombo">技能连携 ×1.00</strong>
+          </div>
+          <div class="skill-meter" aria-label="技能包能量">
+            <span id="skillChargeBar"></span>
+          </div>
+          <p id="skillChargeText">技能包 0/3</p>
+          <div id="skillChoices" class="skill-choice-grid" aria-label="选择一个技能"></div>
+          <p id="skillHint">消除带 ✦ 的果冻，收集 3 个技能包即可任选一个技能。</p>
+        </aside>
+      </section>
+
+      <footer class="game-help">
+        <span>点击两枚相邻果冻交换</span>
+        <span>手机上可直接滑动</span>
+        <span>键盘方向键移动，空格选中</span>
+      </footer>
+    </main>
+
+    <script src="../../src/hamsterBalance.js"></script>
+    <script src="../../src/storage.js"></script>
+    <script src="../../src/campaign.js?v=3"></script>
+    <script src="matchRules.js?v=4"></script>
+    <script src="game.js?v=7"></script>
+  </body>
+</html>

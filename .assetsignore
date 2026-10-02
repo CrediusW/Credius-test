@@ -7,3 +7,5 @@ README.md
 **/*.py
 **/__pycache__/**
 checks.cjs
+
+game-hall-checks.cjs

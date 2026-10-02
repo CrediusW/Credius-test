@@ -1,0 +1,261 @@
+.game-shell {
+  width: min(100%, 1060px);
+}
+
+.playfield {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 12px;
+  align-items: start;
+}
+
+.arena-wrap {
+  position: relative;
+  width: min(100%, calc(100vh - 250px), 680px);
+  min-width: 280px;
+  margin: 0 auto;
+  border: 1px solid rgba(234, 241, 223, 0.18);
+  border-radius: var(--arcade-radius);
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.1), transparent 28%),
+    linear-gradient(180deg, #25372f, #141e1a);
+  box-shadow:
+    0 24px 58px rgba(0, 0, 0, 0.34),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.1),
+    inset 0 0 34px rgba(0, 0, 0, 0.32);
+  overflow: hidden;
+}
+
+.arena-wrap::before {
+  content: "";
+  position: absolute;
+  inset: 8px;
+  z-index: 1;
+  pointer-events: none;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 5px;
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.24);
+}
+
+canvas {
+  position: relative;
+  z-index: 0;
+  width: 100%;
+  aspect-ratio: 1;
+  display: block;
+  background: #1d2924;
+  outline: none;
+  touch-action: none;
+}
+
+canvas:focus-visible {
+  box-shadow: inset 0 0 0 4px rgba(102, 217, 200, 0.72);
+}
+
+.status-panel {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  display: grid;
+  place-items: center;
+  padding: 18px;
+  background: rgba(17, 21, 20, 0.68);
+  backdrop-filter: blur(5px);
+}
+
+.status-panel[hidden] {
+  display: none;
+}
+
+.status-card {
+  width: min(78%, 320px);
+  padding: 24px;
+  border-radius: var(--arcade-radius);
+  background: #f3f5ef;
+  color: #15201e;
+  text-align: center;
+  box-shadow: 0 24px 55px rgba(0, 0, 0, 0.25);
+}
+
+.status-card span {
+  display: block;
+  color: #63706c;
+  font-size: 14px;
+}
+
+.status-card strong {
+  display: block;
+  margin: 7px 0 18px;
+  font-size: 38px;
+  line-height: 1;
+}
+
+.status-card button {
+  min-width: 112px;
+  min-height: 42px;
+  border: 0;
+  border-radius: var(--arcade-radius);
+  background: #15201e;
+  color: #ffffff;
+  cursor: pointer;
+  font-weight: 800;
+}
+
+.control-panel {
+  width: min(100%, 280px);
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(4, 54px);
+  grid-template-rows: repeat(2, 54px);
+  gap: 8px;
+  justify-content: center;
+  padding: 10px;
+  border: 1px solid rgba(234, 241, 223, 0.14);
+  border-radius: var(--arcade-radius);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.04), transparent),
+    var(--arcade-panel);
+  box-shadow: 0 18px 38px rgba(0, 0, 0, 0.24);
+  touch-action: none;
+}
+
+.pad-button,
+.fire-button {
+  width: 54px;
+  height: 54px;
+  border: 1px solid var(--arcade-line);
+  border-radius: var(--arcade-radius);
+  display: grid;
+  place-items: center;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.08), transparent),
+    var(--arcade-panel-2);
+  color: var(--arcade-ink);
+  cursor: pointer;
+  font-size: 22px;
+  font-weight: 900;
+  line-height: 1;
+  box-shadow: inset 0 -2px 0 rgba(0, 0, 0, 0.2);
+}
+
+.pad-button.active,
+.fire-button.active,
+.pad-button:active,
+.fire-button:active {
+  background: var(--arcade-accent);
+  color: #073b35;
+  border-color: transparent;
+}
+
+.pad-up {
+  grid-column: 2;
+  grid-row: 1;
+}
+
+.pad-left {
+  grid-column: 1;
+  grid-row: 2;
+}
+
+.pad-down {
+  grid-column: 2;
+  grid-row: 2;
+}
+
+.pad-right {
+  grid-column: 3;
+  grid-row: 2;
+}
+
+.fire-button {
+  grid-column: 4;
+  grid-row: 2;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.16), transparent),
+    var(--arcade-danger);
+  color: #ffffff;
+}
+
+@media (max-width: 719px) {
+  #backLobby {
+    grid-column: 1;
+    grid-row: 1;
+    justify-self: start;
+  }
+
+  .game-title {
+    grid-column: 2;
+    grid-row: 1;
+  }
+
+  .game-actions {
+    grid-column: 3;
+    grid-row: 1;
+    justify-self: end;
+  }
+
+  .game-stats {
+    grid-column: 1 / -1;
+    grid-row: 2;
+  }
+}
+
+@media (min-width: 880px) {
+  .playfield {
+    grid-template-columns: minmax(0, 1fr) 170px;
+  }
+
+  .arena-wrap {
+    width: min(100%, 680px);
+  }
+
+  .control-panel {
+    width: auto;
+    grid-template-columns: repeat(3, 54px);
+    grid-template-rows: repeat(3, 54px);
+    padding: 14px;
+  }
+
+  .pad-up {
+    grid-column: 2;
+    grid-row: 1;
+  }
+
+  .pad-left {
+    grid-column: 1;
+    grid-row: 2;
+  }
+
+  .pad-down {
+    grid-column: 2;
+    grid-row: 3;
+  }
+
+  .pad-right {
+    grid-column: 3;
+    grid-row: 2;
+  }
+
+  .fire-button {
+    grid-column: 3;
+    grid-row: 3;
+  }
+}
+
+@media (max-width: 420px) {
+  .control-panel {
+    grid-template-columns: repeat(4, 48px);
+    grid-template-rows: repeat(2, 48px);
+    gap: 7px;
+  }
+
+  .pad-button,
+  .fire-button {
+    width: 48px;
+    height: 48px;
+  }
+
+  .settlement-actions {
+    grid-template-columns: 1fr;
+  }
+}

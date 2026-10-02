@@ -1,0 +1,215 @@
+:root {
+  --arcade-accent: #ffd75e;
+}
+
+body {
+  background: #0d1210;
+}
+
+.mary-shell {
+  width: min(100%, 1440px);
+}
+
+.mary-layout {
+  display: grid;
+  gap: 10px;
+}
+
+.mary-stage {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  border: 1px solid rgba(230, 184, 92, 0.3);
+  border-radius: var(--arcade-radius);
+  background: #101916;
+  box-shadow: 0 26px 70px rgba(0, 0, 0, 0.42);
+}
+
+#maryBoard {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  display: block;
+  outline: none;
+  touch-action: none;
+}
+
+#maryBoard:focus-visible {
+  box-shadow: inset 0 0 0 3px rgba(230, 184, 92, 0.72);
+}
+
+.stage-vignette {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  box-shadow:
+    inset 0 0 90px rgba(4, 8, 6, 0.46),
+    inset 0 -70px 90px rgba(4, 7, 5, 0.4);
+}
+
+.ability-bar {
+  position: absolute;
+  top: 64px;
+  left: 18px;
+  z-index: 5;
+  display: flex;
+  max-width: calc(100% - 36px);
+  gap: 7px;
+  pointer-events: none;
+}
+
+.ability-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 30px;
+  padding: 5px 10px;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 999px;
+  background: rgba(17, 24, 40, 0.84);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.22);
+  color: #fff7d0;
+  font-size: 12px;
+  font-weight: 850;
+  backdrop-filter: blur(7px);
+}
+
+.ability-chip strong {
+  color: #ffd75e;
+}
+
+.status-panel {
+  position: absolute;
+  inset: 0;
+  z-index: 12;
+  display: grid;
+  place-items: center;
+  padding: 18px;
+  background: rgba(8, 12, 10, 0.64);
+  backdrop-filter: blur(6px);
+}
+
+.status-panel[hidden] {
+  display: none;
+}
+
+.status-card {
+  width: min(88%, 340px);
+  padding: 22px;
+  border: 1px solid rgba(230, 184, 92, 0.38);
+  border-radius: var(--arcade-radius);
+  background: rgba(20, 27, 23, 0.96);
+  text-align: center;
+}
+
+.status-card span,
+.status-card strong {
+  display: block;
+}
+
+.status-card span {
+  color: #b8c0ba;
+  font-size: 12px;
+}
+
+.status-card strong {
+  margin: 6px 0 16px;
+  font-size: 27px;
+}
+
+.status-card button {
+  min-width: 132px;
+  min-height: 42px;
+  border: 0;
+  border-radius: var(--arcade-radius);
+  background: #e6b85c;
+  color: #17130b;
+  cursor: pointer;
+  font-weight: 900;
+}
+
+.mary-controls {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 120px;
+  gap: 10px;
+  align-items: stretch;
+}
+
+.mary-controls > div {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 96px));
+  gap: 8px;
+}
+
+.mary-controls button {
+  min-height: 58px;
+  border: 1px solid var(--arcade-line);
+  border-radius: var(--arcade-radius);
+  background: var(--arcade-panel-2);
+  color: var(--arcade-ink);
+  cursor: pointer;
+  font-size: 21px;
+  font-weight: 900;
+  touch-action: none;
+}
+
+.mary-controls .jump-control {
+  border-color: rgba(230, 184, 92, 0.45);
+  background: #e6b85c;
+  color: #17130b;
+  font-size: 14px;
+}
+
+.mary-controls button:active {
+  transform: translateY(1px);
+  filter: brightness(1.08);
+}
+
+@media (min-width: 760px) and (pointer: fine) {
+  .mary-controls {
+    width: 420px;
+    margin: 0 auto;
+  }
+}
+
+@media (max-width: 620px) {
+  .mary-shell {
+    padding-inline: 6px;
+  }
+
+  .game-topbar {
+    margin-bottom: 6px;
+  }
+
+  .mary-controls {
+    grid-template-columns: minmax(0, 1fr) 104px;
+  }
+
+  .mary-controls > div {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .mary-controls button {
+    min-height: 54px;
+  }
+
+  .settlement-actions {
+    grid-template-columns: 1fr;
+  }
+
+  .game-stats .stat-pill:nth-of-type(1),
+  .game-stats .stat-pill:nth-of-type(4) {
+    display: none;
+  }
+
+  .ability-bar {
+    top: 50px;
+    left: 10px;
+    gap: 4px;
+  }
+
+  .ability-chip {
+    min-height: 25px;
+    padding: 3px 7px;
+    font-size: 10px;
+  }
+}

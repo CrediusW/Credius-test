@@ -1,0 +1,198 @@
+.game-shell {
+  width: min(100%, 960px);
+}
+
+/* 俄罗斯方块使用局内三关进度，避免与大厅的通用 12 关标记重复。 */
+.campaign-level-chip {
+  display: none;
+}
+
+#campaignSettlement {
+  display: none;
+}
+
+.tetris-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 12px;
+  align-items: start;
+}
+
+.board-wrap {
+  position: relative;
+  width: min(100%, 360px, calc((100vh - 150px) * 0.5));
+  min-width: 250px;
+  margin: 0 auto;
+  border: 1px solid var(--arcade-line);
+  border-radius: var(--arcade-radius);
+  background: #161d1b;
+  box-shadow: 0 24px 58px rgba(0, 0, 0, 0.3);
+  overflow: hidden;
+}
+
+#tetrisBoard {
+  width: 100%;
+  aspect-ratio: 1 / 2;
+  display: block;
+  background: #151c1a;
+  outline: none;
+  touch-action: none;
+}
+
+#tetrisBoard:focus-visible {
+  box-shadow: inset 0 0 0 4px rgba(122, 167, 255, 0.72);
+}
+
+.next-panel {
+  width: min(100%, 360px);
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 118px minmax(0, 1fr);
+  gap: 10px;
+  align-items: center;
+  padding: 10px;
+  border: 1px solid var(--arcade-line);
+  border-radius: var(--arcade-radius);
+  background: var(--arcade-panel);
+}
+
+.next-panel span {
+  display: block;
+  margin-bottom: 6px;
+  color: var(--arcade-muted);
+  font-size: 12px;
+}
+
+#nextPiece {
+  width: 96px;
+  height: 96px;
+  border-radius: var(--arcade-radius);
+  background: var(--arcade-panel-2);
+}
+
+.next-panel p {
+  margin: 0;
+  color: var(--arcade-muted);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.status-panel {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  display: grid;
+  place-items: center;
+  padding: 18px;
+  background: rgba(17, 21, 20, 0.68);
+  backdrop-filter: blur(5px);
+}
+
+.status-panel[hidden] {
+  display: none;
+}
+
+.status-card {
+  width: min(78%, 300px);
+  padding: 24px;
+  border-radius: var(--arcade-radius);
+  background: #f3f5ef;
+  color: #15201e;
+  text-align: center;
+  box-shadow: 0 24px 55px rgba(0, 0, 0, 0.25);
+}
+
+.status-card span {
+  display: block;
+  color: #63706c;
+  font-size: 14px;
+}
+
+.status-card strong {
+  display: block;
+  margin: 7px 0 18px;
+  font-size: 38px;
+  line-height: 1;
+}
+
+.status-card button {
+  min-width: 112px;
+  min-height: 42px;
+  border: 0;
+  border-radius: var(--arcade-radius);
+  background: #15201e;
+  color: #ffffff;
+  cursor: pointer;
+  font-weight: 800;
+}
+
+.control-panel {
+  width: min(100%, 360px);
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 8px;
+  padding: 10px;
+  border: 1px solid var(--arcade-line);
+  border-radius: var(--arcade-radius);
+  background: var(--arcade-panel);
+}
+
+.control-panel button {
+  min-width: 0;
+  height: 52px;
+  border: 1px solid var(--arcade-line);
+  border-radius: var(--arcade-radius);
+  background: var(--arcade-panel-2);
+  color: var(--arcade-ink);
+  cursor: pointer;
+  font-size: 20px;
+  font-weight: 900;
+}
+
+.control-panel button:active {
+  background: #7aa7ff;
+  color: #091529;
+  border-color: transparent;
+}
+
+@media (min-width: 760px) {
+  .tetris-layout {
+    grid-template-columns: minmax(320px, 420px) minmax(180px, 220px);
+    justify-content: center;
+  }
+
+  .board-wrap {
+    width: min(100%, 380px);
+    grid-row: span 2;
+  }
+
+  .next-panel {
+    width: 100%;
+    grid-template-columns: 1fr;
+  }
+
+  .control-panel {
+    width: 100%;
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 420px) {
+  .board-wrap {
+    width: min(100%, calc((100vh - 260px) * 0.5), 330px);
+  }
+
+  .control-panel {
+    grid-template-columns: repeat(5, minmax(44px, 1fr));
+    gap: 6px;
+  }
+
+  .control-panel button {
+    height: 48px;
+  }
+
+  .settlement-actions {
+    grid-template-columns: 1fr;
+  }
+}

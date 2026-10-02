@@ -1,0 +1,26 @@
+{
+  "name": "credius-arcade",
+  "version": "1.8.1",
+  "private": true,
+  "description": "CREDIUS ARCADE - 闻风的离线游戏厅",
+  "type": "module",
+  "scripts": {
+    "dev": "node server/arcadeServer.mjs --open",
+    "serve": "node server/arcadeServer.mjs",
+    "version:check": "node scripts/validate-versions.mjs",
+    "version:docs": "node scripts/generate-version-docs.mjs",
+    "build": "node scripts/build.mjs",
+    "android:sync": "node scripts/build.mjs && cap sync android",
+    "android:apk": "node scripts/build-android.mjs",
+    "smoke": "node scripts/smoke.mjs",
+    "test": "node scripts/validate-versions.mjs && node tests/local-auth.test.mjs && node tests/storage.test.mjs && node tests/hamster-motion.test.mjs && node tests/tetris-lines.test.mjs && node tests/super-mary-jump.test.mjs && node tests/prince-world.test.mjs && node tests/happy-match.test.mjs && node tests/breakout-levels.test.mjs && node tests/last-stand-levels.test.mjs && node tests/flight-chess-board-map.test.mjs && node tests/ludo-rules.test.mjs && node tests/ludo-animation-controller.test.mjs && node tests/multiplayer-room.test.mjs && node tests/multiplayer-websocket.test.mjs && node tests/four-army-board-map.test.mjs && node tests/four-army-rules.test.mjs && node tests/four-army-room.test.mjs && node tests/four-army-websocket.test.mjs && node tests/four-army-bot-websocket.test.mjs && node tests/four-army-replay.test.mjs"
+  },
+  "dependencies": {
+    "@capacitor/android": "8.5.0",
+    "@capacitor/core": "8.5.0",
+    "ws": "8.21.3"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "8.5.0"
+  }
+}

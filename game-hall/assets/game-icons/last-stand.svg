@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Last Stand">
+  <rect width="512" height="512" rx="88" fill="#2e573c" />
+  <path d="M58 355c54-28 116-42 186-42 82 0 153 21 210 62v79H58z" fill="#7cbc62" />
+  <path d="M75 88h362v215c-58-32-119-48-183-48-65 0-124 16-179 49z" fill="#f3c268" />
+  <path d="M88 324h336v40H88z" fill="#684d32" />
+  <path d="M112 278h56v78h-56zM222 260h68v96h-68zM344 278h56v78h-56z" fill="#d64f45" />
+  <path d="M132 244h16v61h-16zM250 218h20v79h-20zM366 244h16v61h-16z" fill="#17231c" />
+  <circle cx="140" cy="235" r="31" fill="#f7d8a4" />
+  <circle cx="260" cy="205" r="38" fill="#f7d8a4" />
+  <circle cx="374" cy="235" r="31" fill="#f7d8a4" />
+  <path d="M105 230c8-33 24-51 48-51 23 0 39 16 47 47-32-12-63-11-95 4zM218 194c8-42 28-64 58-64 27 0 47 21 58 62-39-15-78-14-116 2zM339 230c9-33 25-51 49-51 22 0 38 16 46 47-31-12-63-11-95 4z" fill="#315e79" />
+  <path d="M149 244h-17M270 217h-20M383 244h-17" stroke="#17231c" stroke-width="10" stroke-linecap="round" />
+  <path d="M279 96h104c28 0 50 22 50 50v8c0 28-22 50-50 50H279z" fill="#58a7c8" />
+  <path d="M390 120h58v61h-58z" fill="#17231c" />
+  <text x="331" y="167" font-family="Arial, sans-serif" font-size="58" font-weight="900" text-anchor="middle" fill="#17231c">55</text>
+  <path d="M110 410h292" stroke="#17231c" stroke-width="22" stroke-linecap="round" />
+</svg>
