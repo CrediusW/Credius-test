@@ -42,7 +42,7 @@
         if(pending || saving){await wf.flush();if(pending || saving)return status('请等保存完成；保存失败时先导出备份');}
         await wf.api('/api/logout',{method:'POST',body:'{}'});wf.data={};location.href='/login.html';
       };
-      bar.append(name,sync,link);if(app)bar.append(backup);bar.append(out);document.body.append(bar);
+      bar.append(name,sync,link);if(app)bar.append(backup);bar.append(out);document.body.prepend(bar);
       wf.loaded=true; return wf;
     } catch(error) {
       if(error.status===401){location.replace('/login.html?next='+encodeURIComponent(location.pathname+location.hash));}
