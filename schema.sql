@@ -1,0 +1,32 @@
+PRAGMA foreign_keys = ON;
+CREATE TABLE IF NOT EXISTS users (
+ id TEXT PRIMARY KEY, username TEXT NOT NULL UNIQUE, password_hash TEXT NOT NULL,
+ role TEXT NOT NULL CHECK(role IN ('admin','member')), disabled INTEGER NOT NULL DEFAULT 0,
+ created_at INTEGER NOT NULL
+);
+CREATE TABLE IF NOT EXISTS sessions (
+ token_hash TEXT PRIMARY KEY, user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+ expires_at INTEGER NOT NULL
+);
+CREATE INDEX IF NOT EXISTS sessions_expiry ON sessions(expires_at);
+CREATE TABLE IF NOT EXISTS spaces (
+ user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE, app TEXT NOT NULL,
+ data TEXT NOT NULL DEFAULT '{}', version INTEGER NOT NULL DEFAULT 0,
+ PRIMARY KEY(user_id, app)
+);
+CREATE TABLE IF NOT EXISTS counters (
+ key TEXT PRIMARY KEY, count INTEGER NOT NULL, expires_at INTEGER NOT NULL
+);
+CREATE INDEX IF NOT EXISTS counters_expiry ON counters(expires_at);
+CREATE TABLE IF NOT EXISTS images (
+ id TEXT PRIMARY KEY, user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+ object_key TEXT NOT NULL UNIQUE, name TEXT NOT NULL, mime TEXT NOT NULL, bytes INTEGER NOT NULL,
+ width INTEGER NOT NULL, height INTEGER NOT NULL, ready INTEGER NOT NULL DEFAULT 0, created_at INTEGER NOT NULL
+);
+CREATE INDEX IF NOT EXISTS images_owner ON images(user_id,created_at);
+CREATE TRIGGER IF NOT EXISTS images_quota BEFORE INSERT ON images BEGIN
+ SELECT CASE WHEN (SELECT COUNT(*) FROM images WHERE user_id=NEW.user_id)>=100
+  OR (SELECT COALESCE(SUM(bytes),0) FROM images WHERE user_id=NEW.user_id)+NEW.bytes>104857600
+  OR (SELECT COALESCE(SUM(bytes),0) FROM images)+NEW.bytes>536870912
+ THEN RAISE(ABORT,'image_quota') END;
+END;

@@ -3,3 +3,7 @@ __pycache__/
 *.pyc
 *.tmp
 _render_check.png
+
+.wrangler/
+.dev.vars
+.env

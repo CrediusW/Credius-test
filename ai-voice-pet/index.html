@@ -293,6 +293,7 @@ header{display:flex;justify-content:space-between;align-items:center;padding:6px
 </style>
 <link rel="stylesheet" href="theme.css">
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='18' fill='%231f5547'/%3E%3Ctext x='15' y='46' font-size='44' fill='%23f5f2e9' font-family='serif'%3Ec%3C/text%3E%3C/svg%3E">
+<style>#account-status{position:fixed;right:12px;bottom:12px;background:#fffef8;color:#243d34;border:1px solid #cad5cc;border-radius:12px;padding:10px;z-index:99999;max-width:calc(100vw - 24px);font:13px system-ui;box-shadow:0 3px 18px #0001}#account-status a,#account-status button{margin-left:8px}#account-status button{padding:5px 8px;border:0;border-radius:6px;font:12px system-ui;background:#255447;color:white;cursor:pointer}</style>
 </head>
 <body>
 <div class="app">
@@ -350,7 +351,7 @@ header{display:flex;justify-content:space-between;align-items:center;padding:6px
       <button data-mode="api">在线 AI</button>
     </div>
   </div>
-  <div id="apiRow" class="hidden">
+  <style>#apiRow{display:none!important}#ttsSeg [data-tts=edge]{display:none!important}</style><p>AI 由站长提供，访客无需填写密钥。</p><div id="apiRow" class="hidden">
     <div class="row">
       <label>API 地址（OpenAI 兼容格式，末尾不带斜杠）</label>
       <input id="baseURL" placeholder="https://api.deepseek.com/v1">
@@ -419,9 +420,11 @@ header{display:flex;justify-content:space-between;align-items:center;padding:6px
   <svg viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="6" width="12" height="12" rx="2"/></svg>
 </button>
 
+<script src="/assets/account.js"></script>
 <script>
-(function(){
+(async function(){
   "use strict";
+  await window.Wenfeng.ready;
   var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
   var petWrap = document.getElementById('petWrap');
   var statusEl = document.getElementById('status');
@@ -429,7 +432,7 @@ header{display:flex;justify-content:space-between;align-items:center;padding:6px
   var chat = document.getElementById('chat');
   var sheet = document.getElementById('sheet');
   var toastEl = document.getElementById('toast');
-  var autoMode = false, busy = false, queue = [], state = 'idle', conversationRun = 0, history = [];
+  var autoMode = false, busy = false, queue = [], state = 'idle', conversationRun = 0, history = window.Wenfeng.get('history', []);
   var rate = 1, chosenVoice = null, voices = [];
 
   var DEFAULTS = {
@@ -449,12 +452,13 @@ header{display:flex;justify-content:space-between;align-items:center;padding:6px
   };
   function loadCfg(){
     var c = Object.assign({}, DEFAULTS);
-    try{ var s = JSON.parse(localStorage.getItem('yuanpet_cfg')||'{}');
+    try{ var s = window.Wenfeng.get('config', {});
       for(var k in c){ if(s[k]!==undefined) c[k]=s[k]; }
     }catch(e){}
+    c.apiKey=''; c.baseURL='/api/ai'; c.model=window.Wenfeng.user.model || '站长模型'; c.mode=window.Wenfeng.user.ai ? ((s && s.mode) || 'api') : 'offline'; c.ttsEngine='browser';
     return c;
   }
-  function saveCfg(c){ try{ localStorage.setItem('yuanpet_cfg', JSON.stringify(c)); }catch(e){} }
+  function saveCfg(c){ try{ c.apiKey=''; window.Wenfeng.set('config', c); }catch(e){} }
 
   function setState(s){
     state = s;
@@ -596,7 +600,7 @@ header{display:flex;justify-content:space-between;align-items:center;padding:6px
       [/^嗯+$|哦+|好的|知道了/i, '嗯嗯，我记下啦！还有想说的吗？']
     ];
     for(var i=0;i<map.length;i++) if(map[i][0].test(t)) return map[i][1];
-    return '嗯嗯，我在听你说「'+ t.slice(0,18) +'」！不过现在是本地陪伴模式，去设置里填一个 AI 的 API Key，我就能聪明地和你聊天啦～';
+    return '嗯嗯，我在听你说「'+ t.slice(0,18) +'」！不过现在是本地陪伴模式，等闻风接通 AI，我就能自由地和你聊天啦～';
   }
   var XIAOYUAN_BASE_PROMPT = [
     '你是"深海小元"，一只长期生活在用户桌面上的赛博企鹅电子宠物。',
@@ -737,10 +741,10 @@ header{display:flex;justify-content:space-between;align-items:center;padding:6px
     return fetch(url, {
       signal: AbortSignal.timeout(45000),
       method:'POST',
-      headers:{ 'Content-Type':'application/json', 'Authorization':'Bearer '+(cfg.apiKey||'') },
+      headers:{ 'Content-Type':'application/json', 'X-Wenfeng-App':'xiaoyuan' },
       body: JSON.stringify({
         model: cfg.model||'deepseek-chat',
-        messages:[{role:'system', content:system + fmtRule}].concat(history, [{role:'user', content:userMsg}]),
+        messages:[{role:'system', content:system + fmtRule}].concat(history.slice(-12), [{role:'user', content:userMsg}]),
         max_tokens: maxTokens,
         temperature: 0.8
       })
@@ -752,7 +756,7 @@ header{display:flex;justify-content:space-between;align-items:center;padding:6px
       if(!c) throw new Error('返回格式不对');
       return parseAIResponse(c, cfg.persona);
     }).catch(function(e){
-      return { failed:true, reply:'哎呀，大脑好像掉线了（'+e.message+'）。检查一下设置里的 API 地址和 Key，或者先切回离线模式陪我玩～', persona:cfg.persona||'balanced', depth:'normal', emotion:'neutral', animation:'idle', effect:'none' };
+      return { failed:true, reply:'哎呀，大脑好像掉线了（'+e.message+'）。可以稍后重试，或者先切回本地陪伴模式玩一会儿～', persona:cfg.persona||'balanced', depth:'normal', emotion:'neutral', animation:'idle', effect:'none' };
     });
   }
 
@@ -771,7 +775,8 @@ header{display:flex;justify-content:space-between;align-items:center;padding:6px
       addBubble('pet', res.reply);
       if(!res.failed){
         history.push({role:'user', content:t}, {role:'assistant', content:res.reply});
-        history = history.slice(-12);
+        // ponytail: retain 50 chat turns; add an archive only if more history is needed.
+        history = history.slice(-100); window.Wenfeng.set('history',history);
       }
       setState('speaking');
       applyAIResult(res);
@@ -806,7 +811,7 @@ header{display:flex;justify-content:space-between;align-items:center;padding:6px
     btn.addEventListener('click', function(){ sendText(btn.dataset.prompt); });
   });
   document.getElementById('clearChat').addEventListener('click', function(){
-    stopAll(); history = []; chat.replaceChildren();
+    stopAll(); history = []; window.Wenfeng.set('history',[]); chat.replaceChildren();
     addBubble('pet', '我们重新开始。今天想聊点什么？');
   });
 
@@ -1063,7 +1068,7 @@ header{display:flex;justify-content:space-between;align-items:center;padding:6px
     c.ttsEngine = ttsSeg.querySelector('button.on').dataset.tts;
     c.edgeVoice = document.getElementById('edgeVoiceSel').value;
     saveCfg(c); fillSettings();
-    var extra = c.mode==='api' && !c.apiKey ? '，但还没填 API Key 哦' : (c.ttsEngine==='edge' && !edgeReady ? '，但 Edge 音色服务未连接（会退回浏览器语音）' : '');
+    var extra = false ? '，但还没填 API Key 哦' : (c.ttsEngine==='edge' && !edgeReady ? '，但 Edge 音色服务未连接（会退回浏览器语音）' : '');
     showToast('设置已保存' + extra);
     sheet.classList.remove('open');
   });
@@ -1881,6 +1886,8 @@ header{display:flex;justify-content:space-between;align-items:center;padding:6px
     sheet.classList.remove('open');
   });
 
+  document.querySelector('#modeSeg [data-mode=api]').disabled=!window.Wenfeng.user.ai;
+  history.forEach(function(m){ addBubble(m.role==='user'?'user':'pet',m.content); });
   fillSettings();
   if(loadCfg().ttsEngine === 'edge') probeEdge();
   fillEdgeVoices();
@@ -1891,7 +1898,7 @@ header{display:flex;justify-content:space-between;align-items:center;padding:6px
   if(!SR && !('speechSynthesis' in window)){
     statusTxt.textContent = '当前浏览器不支持语音功能，请用 Chrome / Edge 打开';
   }
-})();
+})().catch(function(){});
 </script>
 </body>
 </html>

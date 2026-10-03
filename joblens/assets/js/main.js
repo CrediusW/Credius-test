@@ -56,6 +56,7 @@ window.JobLens = window.JobLens || {};
   }
 
   function init() {
+    if (window.Wenfeng && !window.Wenfeng.loaded) { window.Wenfeng.ready.then(init).catch(function(){}); return; }
     if (window.__echartsFailed) NS.ui.toast('图表组件加载失败（离线？），图表将降级为文字条', '', 4000);
     if (window.__pdfFailed) NS.ui.toast('PDF 组件加载失败（离线？），PDF 上传暂不可用', '', 4000);
     initTheme();

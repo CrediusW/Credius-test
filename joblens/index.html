@@ -15,6 +15,7 @@
 </script>
 <link rel="stylesheet" href="assets/css/style.css">
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='18' fill='%231f5547'/%3E%3Ctext x='15' y='46' font-size='44' fill='%23f5f2e9' font-family='serif'%3Ec%3C/text%3E%3C/svg%3E">
+<style>#account-status{position:fixed;right:12px;bottom:12px;background:#fffef8;color:#243d34;border:1px solid #cad5cc;border-radius:12px;padding:10px;z-index:99999;max-width:calc(100vw - 24px);font:13px system-ui;box-shadow:0 3px 18px #0001}#account-status a,#account-status button{margin-left:8px}#account-status button{padding:5px 8px;border:0;border-radius:6px;font:12px system-ui;background:#255447;color:white;cursor:pointer}</style>
 </head>
 <body>
 
@@ -42,12 +43,13 @@
 
 <footer class="footer">
   <div class="footer-inner">
-    <span>闻风的奇妙天地 · 本地模式不上传简历；在线 AI 会将相关文本发送到你配置的服务</span>
+    <span>闻风的奇妙天地 · 个人空间保存于云端；在线 AI 会将相关文本发送给 OpenAI</span>
     <span class="footer-sep">·</span>
     <a href="https://github.com/CrediusW/Credius-test/tree/main/joblens" target="_blank" rel="noopener" id="ghLink">GitHub</a>
   </div>
 </footer>
 
+<script src="/assets/account.js"></script>
 <script src="assets/vendor/echarts.min.js" onerror="window.__echartsFailed=true"></script>
 <script src="assets/vendor/pdf.min.js" onerror="window.__pdfFailed=true"></script>
 <script src="assets/js/data.js"></script>

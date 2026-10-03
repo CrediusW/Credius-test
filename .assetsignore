@@ -9,3 +9,14 @@ README.md
 checks.cjs
 
 game-hall-checks.cjs
+
+worker.mjs
+schema.sql
+wrangler.json
+*.mjs
+*.sql
+.wrangler
+.wrangler/**
+package.json
+package-lock.json
+node_modules/**

@@ -27,3 +27,16 @@ SITE_URL=http://127.0.0.1:8767 node game-hall-checks.cjs
 JOBLENS 默认使用本地算法，小元默认使用预设回复。在线 AI 由使用者在设置中配置自己的 OpenAI 兼容服务；本站没有内置模型密钥，也未开通公共付费 AI 接口。在线模式会将相关文本发送到所配置服务。JOBLENS JSON 备份不导出 API Key。
 
 原有 ECharts 5.4.3、PDF.js 3.11.174 从官方发布内容随站托管，保留库内版权声明；PDF 解析关闭动态求值。扫描件 PDF 不支持 OCR。
+
+
+## 个人空间与图片工坊
+
+当前 Worker 使用 D1 `wenfeng-spaces` 保存账号、会话和个人数据。首页、书架与游戏大厅公开，JobLens 与小元需登录。管理账号可创建、停用、启用和重置体验账号。初始密码不进入仓库。
+
+图片工坊 `/images.html` 支持 JPEG/PNG/WebP，单文件最多 5 MB、2000 万像素；每账号最多 100 张、100 MB，全站源图最多 512 MB。缩放尺寸为 320/800/1600，支持等比缩放和方形裁剪，输出 WebP/JPEG/PNG。原图存于私有 R2，Images 进行转换；缓存读取前仍验证登录和所有权。每账号每月最多 300 次未命中缓存的转换，全站最多 1000 次。
+
+**图片服务待账户启用 R2。** 启用后创建 `wenfeng-images`，在 `wrangler.json` 加入 `r2_buckets: [{"binding":"MEDIA","bucket_name":"wenfeng-images"}]`，再通过 GitHub 自动构建发布。当前缺少 `MEDIA` 绑定时，图片页会明确提示尚未连接，不影响账号空间。
+
+在线 GPT 待站长配置 Secret `OPENAI_API_KEY` 和变量 `OPENAI_MODEL`。默认没有模型调用费用，本地简历分析和小元离线陪伴可使用。模型请求通过统一后端，客户端不能覆盖模型；每账号每日 20 次，全站每日 100 次。
+
+验证后端：`node account-checks.mjs`（Node 24）。`checks.cjs` 是历史静态版浏览器检查；其中工具检查需适配登录后才能用于本版本。数据库初始化用 `schema.sql`，既有数据库可重复执行建表语句；私密账号 seed 文件不随项目分发。

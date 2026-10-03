@@ -8,6 +8,7 @@ window.JobLens = window.JobLens || {};
   var PREFIX = 'jl:';
 
   function lsGet(key, def) {
+    if (window.Wenfeng) return window.Wenfeng.get(key, def);
     try {
       var raw = localStorage.getItem(PREFIX + key);
       if (raw === null) return def;
@@ -15,6 +16,7 @@ window.JobLens = window.JobLens || {};
     } catch (e) { return def; }
   }
   function lsSet(key, val) {
+    if (window.Wenfeng) return window.Wenfeng.set(key, val);
     try { localStorage.setItem(PREFIX + key, JSON.stringify(val)); return true; }
     catch (e) {
       if (NS.ui && NS.ui.toast) NS.ui.toast('本地存储失败：' + e.message, 'bad');
@@ -41,9 +43,10 @@ window.JobLens = window.JobLens || {};
     /* ---- 设置 ---- */
     settings: function () {
       var s = lsGet('settings', null);
-      if (!s) { s = JSON.parse(JSON.stringify(DEFAULT_SETTINGS)); lsSet('settings', s); }
+      if (!s) { s = JSON.parse(JSON.stringify(DEFAULT_SETTINGS)); if(window.Wenfeng && window.Wenfeng.user.ai) s.engine='llm'; lsSet('settings', s); }
       // 兼容旧结构
       if (!s.llm) s.llm = JSON.parse(JSON.stringify(DEFAULT_SETTINGS.llm));
+      if(window.Wenfeng){ s.llm = {baseUrl:'',apiKey:'',model:window.Wenfeng.user.model || '站长模型',proxyUrl:window.Wenfeng.user.ai ? '/api/ai' : ''}; if(!window.Wenfeng.user.ai) s.engine='local'; else if(!lsGet('settings',null)) s.engine='llm'; }
       return s;
     },
     saveSettings: function (s) { lsSet('settings', s); },
@@ -123,6 +126,7 @@ window.JobLens = window.JobLens || {};
     },
     clearAll: function () {
       ['resumes', 'portfolio', 'settings', 'matchHistory', 'interviewHistory', 'currentResume', 'theme'].forEach(function (k) {
+        if(window.Wenfeng){ window.Wenfeng.set(k,undefined); return; }
         try { localStorage.removeItem(PREFIX + k); } catch (e) {}
       });
     }

@@ -51,7 +51,7 @@ window.JobLens = window.JobLens || {};
           '<div>' +
             /* ---- 数据管理 ---- */
             '<div class="card"><div class="card-title">数据管理</div>' +
-              '<p class="muted small">简历、作品集与历史保存在当前浏览器。备份不包含 API Key，换电脑后请重新配置密钥。</p>' +
+              '<p class="muted small">简历、作品集与历史保存在你的账号下，登录后可跨设备使用。备份不包含模型密钥。</p>' +
               '<div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px">' +
                 '<button class="btn btn-ghost btn-sm" id="exportAllBtn">导出全部数据 (JSON)</button>' +
                 '<button class="btn btn-ghost btn-sm" id="importBtn">导入备份</button>' +
@@ -64,12 +64,12 @@ window.JobLens = window.JobLens || {};
                 '</select></label>' +
               '<button class="btn btn-ghost btn-sm" id="exportMdBtn" style="margin-bottom:16px">导出选中简历</button>' +
               '<hr style="border:none;border-top:1px solid var(--border);margin:14px 0">' +
-              '<button class="btn btn-danger btn-sm" id="clearBtn">清空全部本地数据</button>' +
+              '<button class="btn btn-danger btn-sm" id="clearBtn">清空我的求职数据</button>' +
             '</div>' +
 
             /* ---- 关于 ---- */
             '<div class="card"><div class="card-title">关于 JobLens · 职透</div>' +
-              '<p class="muted small">本地算法 · 浏览器存储 · 可选在线 AI 的开源 AI 求职驾驶舱。<br>' +
+              '<p class="muted small">本地算法 · 个人空间 · 站长提供的在线 AI 的开源 AI 求职驾驶舱。<br>' +
               'JD 匹配（本地算法 ⇄ LLM 双引擎）· AI 模拟面试 · 作品集雷达。<br>' +
               '技术栈：原生 JavaScript + ECharts + pdf.js，无任何构建工具与框架依赖。</p>' +
               '<p class="faint small">v1.0 · 2026-09 · 用作品说话</p>' +
@@ -78,6 +78,7 @@ window.JobLens = window.JobLens || {};
         '</div>';
 
       bind();
+      if(window.Wenfeng){ document.getElementById('llmKey').closest('.card').hidden=true; document.getElementById('engLlm').disabled=!window.Wenfeng.user.ai; document.getElementById('engLlm').textContent=window.Wenfeng.user.ai ? '站长提供的 AI' : 'AI 尚未接通'; }
     }
 
     function saveLlm() {

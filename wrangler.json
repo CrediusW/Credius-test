@@ -1,0 +1,30 @@
+{
+  "name": "credius-test",
+  "main": "worker.mjs",
+  "compatibility_date": "2026-10-03",
+  "account_id": "a84375f516e277e6f4c63616e5d6b436",
+  "assets": {
+    "directory": ".",
+    "binding": "ASSETS",
+    "run_worker_first": [
+      "/api/*",
+      "/joblens/*",
+      "/ai-voice-pet/*"
+    ]
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "wenfeng-spaces",
+      "database_id": "4fb2bb85-4b15-480d-968a-f0b6a6eacd10"
+    }
+  ],
+  "vars": {
+    "AI_USER_DAILY_LIMIT": "20",
+    "AI_TOTAL_DAILY_LIMIT": "100"
+  },
+  "images": {
+    "binding": "IMAGES"
+  },
+  "keep_vars": true
+}
